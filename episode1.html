@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=2"></script></head>
+<body><script src="engine.js?v=23"></script><script>
+const PC='art/cast2/petrovich/',{S2,st,say,seq,wait,walkTo,mistake,setGoal,$}=Engine;
+const f=st.f,A='art/';
+/* раздевалка: фон 1942x809 в масштабе 0.9, пол на y=500 */
+const SC=205/400,K=0.9*SC,OY=500-585*SC;/* масштаб как на улице */
+const CAB={x:1485*SC,bottom:500-18*SC,h:396*SC,w:396*SC*1018/1228},CK=CAB.h/1228,CX0=CAB.x-CAB.w/2,CY0=CAB.bottom-CAB.h;
+const ITEMS={kostyum:[410,628,'Утеплённый костюм'],botinki:[410,1092,'Зимние рабочие ботинки'],perchatki:[410,432,'Рабочие перчатки'],kaska:[410,228,'Каска'],
+ naushniki:[590,228,'Противошумные наушники'],gazoanalizator:[590,432,'Газоанализатор'],raciya:[590,628,'Рация'],
+ kurtka:[410,816,'Пуховик'],kepka:[590,816,'Кепка'],krossovki:[590,1092,'Кроссовки']};
+const SIZES={kostyum:[363,348],botinki:[344,341],perchatki:[245,264],kaska:[294,242],naushniki:[293,265],gazoanalizator:[140,249],raciya:[101,321],kurtka:[421,289],kepka:[290,234],krossovki:[386,212]};
+const ORDER=['kostyum','botinki','perchatki','kaska','naushniki','gazoanalizator','raciya'];
+const WRONG={kurtka:'Пуховик — синтетика, электризуется. Искра рядом с газом — беда. Только спецодежда.',
+ kepka:'Кепка от удара не спасёт. Только каска.',
+ krossovki:'В кроссовках на минус сорок два по обледенелой площадке? Ноги отморозишь и поскользнёшься.'};
+const NEXT_HINT=['Начни с костюма. Он из ткани, которая не электризуется, — искра рядом с газом опасна.','Теперь обувь. Подошва с противоскользящим протектором и защитный носок — на обледенелой площадке без них никак.','Перчатки. Металл на морозе обжигает не хуже огня.','Каска — всегда, как только вышел за порог. Сверху много чего есть.','Возле компрессоров и сепараторов шумно — уши береги смолоду.','Главный прибор. Природный газ без цвета, а на промысле часто и без запаха — только он скажет, есть ли утечка.','И связь. На объекте в одиночку ничего не делают — всегда на связи.'];
+function scene(){
+ let it='';
+ for(const [n,[cx,by]] of Object.entries(ITEMS)){const [w0,h0]=SIZES[n],sc=Math.min(150/w0,155/h0)*CK,w=w0*sc,h=h0*sc;
+  it+=`<image id="it-${n}" href="${A}scene_1_0/items/${n}.png" x="${CX0+cx*CK-w/2}" y="${CY0+by*CK-h}" width="${w}" height="${h}" style="transition:opacity .6s"/>`}
+ return `<rect x="0" y="-400" width="${1942*K}" height="${OY+400+1}" fill="#2a2621"/><image href="${A}scene_1_0/1.0_shkaf_room.png" x="${CX0}" y="${CY0}" width="${CAB.w}" height="${CAB.h}"/>${it}`}
+async function talkMaster(){
+ if(!f.talked){await seq([['Вы','Здравствуйте! Я новый оператор, сегодня мой первый день.'],
+  ['Мастер Петрович','Николай Петрович Воронов, мастер по добыче газа УКПГ-3. Но можешь звать меня просто Петрович.'],
+  ['Мастер Петрович','Первым делом — переодеться. На промысле своя одежда: она не копит искру, держит мороз и видна издалека. Шкаф с СИЗ — у стены.'],['Вы','Понял, Петрович!']]);f.talked=1}
+ else if(!f.dressed)await say('Мастер Петрович','Шкаф с СИЗ — у стены. Одевайся, время идёт.')}
+async function dress(){
+ if(!f.talked)return say('Вы','Сначала надо представиться мастеру.');
+ if(f.dressed)return;
+ await walkTo(CAB.x-150*SC);st.dir=1;st.busy=true;
+ let stage=f.stage||0;const left=new Set(Object.keys(ITEMS).filter(n=>!(f.taken||[]).includes(n)));f.taken=f.taken||[];
+ while(stage<ORDER.length){
+  const opts=[...left];
+  const i=await say('Шкаф СИЗ',`Надето: ${stage?ORDER.slice(0,stage).map(n=>ITEMS[n][2].toLowerCase()).join(', '):'пока ничего'}. Что взять?`,opts.map(n=>ITEMS[n][2]));
+  const n=opts[i];
+  if(WRONG[n]){mistake();await say('Мастер Петрович',WRONG[n]);continue}
+  if(n!==ORDER[stage]){await say('Мастер Петрович','Погоди с этим. '+NEXT_HINT[stage]);continue}
+  $('it-'+n).style.opacity=0;left.delete(n);f.taken.push(n);stage++;f.stage=stage;
+  await wait(300);st.pose={spr:'st'+(stage+1)};await wait(400)}
+ f.dressed=1;st.busy=false;
+ await seq([['Мастер Петрович','Вот теперь готов. Пойдём, покажу хозяйство — сначала экскурсия, потом работа.']]);
+ try{sessionStorage.setItem('gv_ep1_m',st.mistakes)}catch(e){}
+ const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:#000;opacity:0;transition:opacity 1s;z-index:20';document.body.appendChild(o);
+ requestAnimationFrame(()=>o.style.opacity=1);await wait(1100);location.href='episode1-2.html'}
+const CV='art/cast2/hero/civ/',C='art/hero_civ/',Dd='art/cast2/hero/dress/',P='art/petrovich/';
+Engine.run({id:'ep1',pilot:true,title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
+ weather:'🏠 +21 °C · 07:50',sky:'#1c1714',sky2:'#1c1714',keepSky:true,noClouds:true,start:170*SC,worldW:1942*K,
+ bgImage:{src:A+'scene_1_0/1.0_fon.jpg',y:OY,w:1942*K,h:809*K},
+ player:{sprites:{h:205,mouth:[10,174],walkFrames:['walk2','walk1','walk8','walk7','walk6','walk5','walk4','walk3'],walkStep:1.1,poses:{
+  idle:[CV+'idle.png',574,1273,0.59],talk:[CV+'talk.png',564,1273,0.586],walk1:[CV+'walk8/f1.png',684,1250,0.476],walk2:[CV+'walk8/f2.png',440,1258,0.65],walk3:[CV+'walk8/f3.png',776,1226,0.541],walk4:[CV+'walk8/f4.png',767,1263,0.503],walk5:[CV+'walk8/f5.png',683,1294,0.438],walk6:[CV+'walk8/f6.png',477,1282,0.614],walk7:[CV+'walk8/f7.png',774,1257,0.553],walk8:[CV+'walk8/f8.png',812,1291,0.519],
+  st2:[Dd+'st2.png',603,1340,0.592],st3:[Dd+'st3.png',604,1340,0.592],st4:[Dd+'st4.png',592,1340,0.584],st5:[Dd+'st5.png',593,1340,0.583],st6:[Dd+'st6.png',593,1340,0.583],st7:[Dd+'st7.png',592,1340,0.581],st8:[Dd+'st8.png',594,1340,0.581]}}},
+ npc:{x:760*SC,name:'Мастер Петрович',sprites:{h:185,mouth:[30,144],idleCycle:['idle','arms_crossed','idle','thermos'],poses:{idle:[PC+'idle.png',816,1200,0.553],talk:[PC+'talk.png',739,1200,0.505],point:[PC+'point.png',1224,1200,0.336],happy:[PC+'happy.png',707,1200,0.544],angry:[PC+'angry.png',774,1200,0.55],arms_crossed:[PC+'arms_crossed.png',598,1200,0.463],thermos:[PC+'thermos.png',690,1200,0.539]}}},
+ goals:['Подойдите к мастеру и представьтесь','Переоденьтесь у шкафа СИЗ'],
+ goalIdx:f=>!f.talked?0:1,pointerImg:'art/cast2/arrow.png',pointer:f=>f.dressed?null:!f.talked?{x:760*SC,y:500-185-30}:{x:CAB.x,y:CY0-20},
+ scene,hotspots:[{x:760*SC,r:130,label:'Представиться',tip:'Мастер Петрович',act:talkMaster},{x:CAB.x,r:100,label:'Шкаф СИЗ',tip:'Шкаф со спецодеждой (СИЗ)',act:dress}],
+ intro:[['','<i>Вы приняты на работу оператором по добыче нефти и газа 3-го разряда на УКПГ-3 Северного газового промысла.<br>Ямал, январь, −42 °C. Первый рабочий день.</i>']],
+ lessons:[]});
+</script><script src="progress.js"></script><script src="glossary.js"></script></body></html>

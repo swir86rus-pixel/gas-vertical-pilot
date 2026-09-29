@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=2"></script></head>
+<body><script src="engine.js?v=23"></script><script>
+const PC='art/cast2/petrovich/',{G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,show,order,mistake,finish,setGoal,$}=Engine;
+const f=st.f;
+const A='art/';
+const img=(src,x,h,w0,h0,extra='')=>{const w=h*w0/h0;return `<image ${extra} href="${A+src}" x="${x}" y="${500-h}" width="${w}" height="${h}"/>`};
+function scene(){
+ let v='';
+ [0,1,2].forEach(i=>{const cx=1700+i*230;v+=`<g id="obj-v${i}">${img('kit1/zadvizhka_pryamaya.png',cx-180,147,374,164)}</g>
+  <g><circle cx="${cx}" cy="328" r="13" fill="#fff" ${S2}/><circle id="v${i}" cx="${cx}" cy="328" r="13" fill="none" stroke="#555" stroke-width="4"/><text x="${cx}" y="333" font-size="14" text-anchor="middle" font-weight="bold" font-family="Arial,sans-serif">${i+1}</text></g>`});
+ return `
+<g id="o-fakel" opacity=".75"><image href="${A}kit1/fakel.png" x="1060" y="232" width="48" height="95"/></g>
+${img('scene_1_2/1.2_operatornaya.png',640,300,1510,984,'id="o-op"')}
+${img('kit1/emkost_gor.png',1140,115,290,207,'id="o-sep"')}
+${img('kit1/preduklapan_normal.png',1225,150,128,250,'id="o-klapan"')}
+${img('kit1/absorber.png',1330,470,648,1482,'id="o-abs"')}
+${img('scene_1_3/pozh_shit.png',1500,95,1668,724,'id="o-pozh"')}
+${img('scene_1_3/1.3_tablichka.png',1650,95,403,291)}
+<g id="o-valves">${v}</g>
+<rect x="1830" y="470" width="200" height="22" rx="2" fill="#f3efe4" ${S2}/><text x="1930" y="481" dominant-baseline="central" data-w="190" data-h="20" font-size="13" text-anchor="middle" font-weight="bold">Узел переключения</text>
+<g id="o-well">${img('kit1/ustye_elka_norma.png',2290,215,1435,1004,'id="elka-n"')}
+${img('kit1/ustye_elka_gidraty.png',2290,215,1403,998,'id="elka-g"')}</g>
+<rect x="2290" y="470" width="150" height="22" rx="2" fill="#f3efe4" ${S2}/><text x="2365" y="481" dominant-baseline="central" data-w="140" data-h="20" font-size="13" text-anchor="middle" font-weight="bold">Скважина №101</text>
+${''}
+`}
+const NPCC={x:420};
+const card=(t,what,why,safe)=>say('📋 '+t,`<div style="line-height:1.45"><b>Что это:</b> ${what}<br><b>Зачем:</b> ${why}<br><b style="color:#b0381e">⚠ Безопасность:</b> ${safe}</div>`);
+function glow(id,on){const el=$(id);if(el)el.style.filter=on?'drop-shadow(0 0 6px #ffd23a) drop-shadow(0 0 12px #ffd23a)':''}
+async function npcTo(x){const x0=NPCC.x,n=Math.max(1,Math.round(Math.abs(x-x0)/3));NPCC.walking=true;NPCC.dir=Math.sign(x-x0)||1;for(let k=1;k<=n;k++){NPCC.x=x0+(x-x0)*k/n;NPCC.step=(NPCC.step||0)+0.25;await wait(16)}NPCC.walking=false}
+async function goTo(x,id){await Promise.all([npcTo(x+70),walkTo(x-110)]);st.dir=1;st.busy=false;if(id)glow(id,true)}
+const TOUR=[
+ ['o-well',2440,'Скважина №101 («ёлка»)','С неё всё начинается. Газ идёт с глубины трёх километров под давлением около 10 МПа — в сто раз больше, чем в колесе машины. Эти задвижки управляют потоком.',
+  'фонтанная арматура на устье скважины','управляет потоком газа из пласта','без команды мастера задвижки не трогать. Манометр — первое, на что смотришь.'],
+ ['o-well',2520,'Шлейф','По шлейфу газ идёт на установку. Зимой главный враг — гидраты: газ с водой на морозе превращается в снег-лёд и забивает трубу.',
+  'труба от скважины до установки','доставляет газ на подготовку','против гидратов — метанол. Открытый огонь на газовом объекте запрещён.'],
+ ['o-valves',1930,'Узел переключения','Здесь можно пустить газ в обход. Правило: сначала открой новый путь, потом закрывай старый.',
+  'три задвижки: обводная линия и основной шлейф','позволяют пустить газ в обход, не останавливая скважину','задвижки крутят плавно; перед переключением — доклад мастеру.'],
+ ['o-abs',1432,'Абсорбер','Сушит газ. Сухой газ не замерзает в трубе на тысячи километров.',
+  'высокая колонна осушки газа','убирает из газа влагу','на колонны — только по лестнице, держась за поручни, одна рука всегда свободна.'],
+ ['o-klapan',1263,'Предохранительный клапан','Если давление вырастет выше нормы, он сам сбросит лишнее. Страховка установки.',
+  'клапан сброса давления','защищает оборудование от превышения давления','не стоять напротив выхлопа клапана.'],
+ ['o-sep',1220,'Сепаратор','Отделяет от газа воду и песок — как отстойник.',
+  'ёмкость-отстойник','отделяет от газа воду и механические примеси','уровень жидкости в сепараторе контролируют постоянно.'],
+ ['o-pozh',1610,'Пожарный шкаф','Огнетушитель, кошма, песок. Где он — должен знать каждый.',
+  'шкаф с первичными средствами пожаротушения','чтобы потушить возгорание в первые минуты','при пожаре: доклад по рации, отойти на безопасное расстояние.'],
+ ['o-op',885,'Операторная и мнемосхема','А это наши глаза. Все давления и температуры — на экране. Зелёное — норма, красное — беда.',
+  'пункт контроля установки','показывает давления, температуры и уровни на мнемосхеме','любое отклонение — сразу доклад.'],
+ ['o-fakel',885,'Факел','Видишь огонь вдали? Туда сбрасывают газ, если что-то пошло не так. Огонь горит — значит, система жива.',
+  'факельная установка','безопасно сжигает сбрасываемый газ','к факелу без допуска не подходить.'],
+];
+async function tour(){
+ st.lock=true;
+ await say('Мастер Петрович','Смотри и запоминай. Газ идёт из-под земли, а мы его чистим, сушим и отправляем дальше. Пройдём по той же дороге, что и газ.');
+ for(const [id,x,t,line,what,why,safe] of TOUR){
+  $('goal').innerHTML='📋 <b>Экскурсия:</b> '+t;await goTo(x,id);st.pose={spr:'idle'};
+  await card(t,what,why,safe);await say('Мастер Петрович',line);if(id)glow(id,false);st.pose=null}
+ await say('Мастер Петрович','Три правила промысла запомни: газ не видно — верь прибору; не уверен — не трогай, спроси; всегда на связи.');
+ const q=await say('Мастер Петрович','Хочешь, проверю, что запомнил? Три вопроса.',['Пройти зачёт','Пропустить']);
+ if(q===0){
+  const Q=[['Чем борются с гидратами в шлейфе?',['Открытым огнём','Метанолом','Кувалдой'],1,'Метанолом. Огонь на газовом объекте запрещён, а бить по трубе под давлением нельзя.'],
+   ['Как правильно переключать поток?',['Сначала закрыть старый путь','Сначала открыть новый путь','Всё одновременно'],1,'Сначала открывают новый путь, потом закрывают старый — иначе давление скакнёт.'],
+   ['Где нельзя стоять?',['Напротив выхлопа предохранительного клапана','У мнемосхемы','Возле пожарного шкафа'],0,'Напротив выхлопа клапана: при сбросе давления газ выходит с огромной силой.']];
+  let ok=0;for(const [qq,opts,r,expl] of Q){const a=await say('Зачёт',qq,opts);if(a===r)ok++;await say('Мастер Петрович',(a===r?'Верно. ':'Не совсем. ')+expl)}
+  await say('Мастер Петрович',ok===3?'Все три — молодец!':`Верно ${ok} из 3. Ничего, на практике запомнишь.`)}
+ await npcTo(560);f.tour=1;st.lock=false;
+ await seq([['Мастер Петрович','Вот и первая задача. На скважине 101 падает расход. Разберись: мнемосхема, потом шлейф.'],['Вы','Понял, Петрович.']]);f.talked=1;setGoal()}
+const fade=(id,to)=>{const e=$(id);e.style.transition='opacity 1.6s';e.style.opacity=to};
+function mnemo(alarm){
+ const F={well_P:[180,143,272,188],well_T:[180,196,272,240],well_L:[180,249,272,293],sep_P:[611,176,735,218],sep_T:[611,225,735,267],sep_L:[611,273,735,315],heater_T:[827,596,957,639]};
+ const V=alarm?{well_P:['10,4 МПа ↑',1],well_T:['4 °C ↓',1],well_L:['12 тыс.м³ ↓',1],sep_P:['6,2 МПа ↓',1],sep_T:['1 °C ↓',1],sep_L:['48 %',0],heater_T:['65 °C',0]}
+  :{well_P:['9,1 МПа',0],well_T:['18 °C',0],well_L:['85 тыс.м³',0],sep_P:['8,8 МПа',0],sep_T:['15 °C',0],sep_L:['48 %',0],heater_T:['65 °C',0]};
+ const pc=(v,t)=>(v/t*100).toFixed(2)+'%';
+ return `<div class="mnemo" style="position:relative;margin-top:6px"><img src="${A}scene_1_2/1.2_mnemo_pustaya.png" style="width:100%;display:block">
+ <div style="position:absolute;left:${pc(66,1724)};top:${pc(248,831)};width:${pc(110,1724)};height:${pc(46,831)};background:#1a2c3b;color:#fff;font:1.75cqw sans-serif;display:flex;align-items:center">Q&nbsp;<small>устья</small></div>
+ ${Object.entries(F).map(([k,[x1,y1,x2,y2]])=>`<div class="${V[k][1]?'bad':''}" style="position:absolute;left:${pc(x1,1724)};top:${pc(y1,831)};width:${pc(x2-x1,1724)};height:${pc(y2-y1,831)};display:flex;align-items:center;justify-content:center;font:bold 1.05cqw/1.05 sans-serif;white-space:normal;text-align:center;letter-spacing:-.02em;color:${V[k][1]?'#ff5a4a':'#5ee07a'}">${V[k][0].replace(" ","<br>")}</div>`).join('')}</div>`}
+document.head.insertAdjacentHTML('beforeend','<style>#dlg:has(.mnemo){width:min(96%,860px,calc((100vh - 190px)*2.07));bottom:70px;max-height:calc(100vh - 20px)}.mnemo{container-type:inline-size}.mnemo .bad{animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:.35}}</style>');
+const hot=[
+ {get x(){return NPCC.x},r:110,label:'Поговорить',tip:'Мастер Петрович',act:talkMaster},
+ {x:885,r:90,label:'Мнемосхема',tip:'Операторная: мнемосхема установки',act:diagnose},
+ {x:1210,r:60,label:'Сепаратор',tip:'Сепаратор — отделяет воду и песок',act:()=>say('Вы','Сепаратор отделяет от газа капельную воду и песок. Давление на входе низкое: газа приходит мало.')},
+ {x:1430,r:60,label:'Абсорбер',tip:'Абсорбер — осушка газа',act:()=>say('Вы','Абсорбер осушает газ гликолем. Сам он в порядке, просто газа в него поступает меньше обычного.')},
+ {x:1930,r:260,label:'Задвижки',tip:'Узел переключения: задвижки 1–3',act:valvePuzzle},
+ {x:2350,r:55,label:'Скважина',tip:'Фонтанная арматура скважины №101',act:well},
+ {x:2500,r:70,label:'Осмотреть шлейф',tip:'Шлейф скважины №101',act:hydrate},
+];
+async function well(){await work(2350,0,1300,{pose:'point',dx:110});
+ await say('Вы',f.hydrate?'Давление на устье пришло в норму: газ снова идёт в шлейф.':'Фонтанная арматура. Манометр на устье показывает рост давления: газ «упёрся» во что-то ниже по шлейфу.')}
+async function talkMaster(){
+ if(!f.talked)return;
+ else if(f.valves){await seq([['Мастер Петрович','Молодец. Первая смена — и уже с делом справился.']]);finish()}
+ else await say('Мастер Петрович','Задача прежняя, работай по порядку.')}
+async function diagnose(){
+ if(f.diag)return say('Мнемосхема УКПГ',mnemo(!f.hydrate)+(f.hydrate?'Все параметры в норме.':'Проблема в шлейфе скважины №101.'));
+ const i=await say('Мнемосхема УКПГ',mnemo(true)+'Красным мигают отклонения. Где проблема?',
+ ['В сепараторе: у него низкое давление','В шлейфе между устьем и сепаратором: на устье давление выросло, на входе упало, расход и температура падают','В подогревателе']);
+ if(i===1){f.diag=1;await say('Вы','На устье давление выросло, а в сепараторе упало — между ними пробка. Газ остыл — это гидраты.')}
+ else{mistake();await say('Мастер Петрович','Сравни давление на устье и в сепараторе. Где перепад?')}}
+async function hydrate(){
+ if(!f.diag)return say('Вы','На трубе толстый иней… Но сначала надо понять по приборам, что происходит.');
+ if(f.hydrate)return say('Вы','Пробка растворяется, метанол работает.');
+ const i=await say('Шлейф скважины №101','На трубе иней, внутри гидратная пробка. Что делать?',['Отогреть трубу открытым огнём','Подать метанол в шлейф: он растворяет гидраты','Постучать по трубе кувалдой']);
+ if(i===1){await walkTo(2430);st.dir=1;st.pose={spr:'radio'};
+  await say('Вы (по рации)','Операторная, я на шлейфе скважины 101. Гидратная пробка, прошу подать метанол в шлейф.');
+  await say('Операторная (по рации)','Принято, подаём метанол в шлейф 101. Наблюдайте.');st.pose=null;
+  fade('elka-g',0);await wait(1700);f.hydrate=1;
+  await say('Вы','Иней сходит — метанол растворяет гидраты. Поток пустим в обход, пока шлейф отходит.')}
+ else if(i===0){mistake();await say('Мастер Петрович (по рации)','Никакого огня на газовом объекте!')}
+ else{mistake();await say('Мастер Петрович (по рации)','По трубе под давлением не бьют — может порвать металл.')}}
+async function valvePuzzle(){
+ if(!f.hydrate)return say('Вы','Узел переключения. Пока трогать нечего, сначала разберусь с пробкой.');
+ if(f.valves)return say('Вы','Поток идёт по обводной линии.');
+ const ord=await order('Узел переключения','Три задвижки: 1 — обводная линия, 2 — основной шлейф (вход), 3 — основной шлейф (выход). Нужно пустить газ в обход, не прерывая поток и не создавая перепада давления. Порядок важен!',
+  ['1 · Открыть обводную','2 · Закрыть вход основного','3 · Закрыть выход основного'],async i=>{await turnWheel('v'+i,1700+i*230,470,i===0);$('v'+i).setAttribute('stroke','#3aa655');$('v'+i).style.filter='drop-shadow(0 0 5px #5cff7a) drop-shadow(0 0 9px #5cff7a)'});
+ if(ord[0]===0){f.valves=1;await say('Вы','Газ пошёл по обводной!')}
+ else{mistake();[0,1,2].forEach(i=>{$('v'+i).setAttribute('stroke','#c0392b');$('v'+i).style.filter='drop-shadow(0 0 5px #ff5a4a)';setTimeout(()=>{$('v'+i).setAttribute('stroke','#555');$('v'+i).style.filter=''},1500)});
+  await say('Мастер Петрович (по рации)','Стоп! Сначала открой новый путь, потом закрывай старый.')}}
+const C2='art/cast2/hero/',H='art/hero2/',H3='art/hero3/',H5='art/hero5/',P='art/petrovich/';
+Engine.run({id:'ep1',pilot:true,title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
+ weather:'❄️ −42 °C · 09:40',precip:'snow',start:300,
+ bgImage:{src:A+'scene_1_3/1.3_fon.jpg',y:-186,w:2600,h:900},
+ player:{sprites:{h:215,mouth:[18,178],valveDx:35,walkFrames:['walk2','walk1','walk8','walk7','walk6','walk5','walk4','walk3'],walkStep:1.1,maxH:1340,poses:{
+  idle:[C2+'idle.png',617,1340,0.582],walk1:[C2+'walk8/f1.png',856,1320,0.498],walk2:[C2+'walk8/f2.png',858,1310,0.55],walk3:[C2+'walk8/f3.png',887,1276,0.571],walk4:[C2+'walk8/f4.png',910,1295,0.534],walk5:[C2+'walk8/f5.png',838,1302,0.488],walk6:[C2+'walk8/f6.png',530,1308,0.612],walk7:[C2+'walk8/f7.png',828,1266,0.616],walk8:[C2+'walk8/f8.png',867,1318,0.554],talk:[C2+'talk.png',718,1358,0.476],point:[C2+'point.png',1060,1319,0.333],happy:[C2+'happy.png',617,1338,0.581],alarm:[C2+'alarm.png',613,1329,0.564],detector:[C2+'detector.png',604,1338,0.582],radio:[C2+'radio.png',685,1385,0.529],crank:[C2+'crank.png',723,1352,0.396],crouch:[C2+'crouch.png',781,1037,0.68],manometer:[C2+'point.png',1060,1319,0.333]}}},
+ npc:{get x(){return NPCC.x},get walking(){return NPCC.walking},get step(){return NPCC.step},get dir(){return NPCC.dir},name:'Мастер Петрович',sprites:{h:195,walkFrames:['walk8','walk7','walk6','walk5','walk3','walk2','walk1'],walkStep:1.1,mouth:[30,152],idleCycle:['idle','arms_crossed','idle','thermos'],poses:{idle:[PC+'idle.png',816,1200,0.553],talk:[PC+'talk.png',739,1200,0.505],point:[PC+'point.png',1224,1200,0.336],happy:[PC+'happy.png',707,1200,0.544],angry:[PC+'angry.png',774,1200,0.55],arms_crossed:[PC+'arms_crossed.png',598,1200,0.463],thermos:[PC+'thermos.png',690,1200,0.539],walk1:[PC+'walk8/f1.png',743,1145,0.531],walk2:[PC+'walk8/f2.png',508,1164,0.59],walk3:[PC+'walk8/f3.png',771,1142,0.561],walk4:[PC+'walk8/f4.png',803,1151,0.564],walk5:[PC+'walk8/f5.png',762,1187,0.513],walk6:[PC+'walk8/f6.png',578,1149,0.547],walk7:[PC+'walk8/f7.png',811,1167,0.565],walk8:[PC+'walk8/f8.png',741,1185,0.544]}}},
+ goals:['Экскурсия по площадке с Петровичем','Найдите неисправность в операторной (мнемосхема)','Осмотрите шлейф скважины №101','Переключите поток на узле задвижек','Вернитесь к мастеру'],
+ goalIdx:f=>!f.talked?0:!f.diag?1:!f.hydrate?2:!f.valves?3:4,
+ scene,hotspots:hot,
+ intro:[['','<i>Вместе с Петровичем вы выходите на площадку УКПГ-3.</i>']],afterIntro:tour,pointerImg:'art/cast2/arrow.png',pointer:f=>!f.tour?null:!f.diag?{x:885,y:170}:!f.hydrate?{x:2500,y:260}:!f.valves?{x:1930,y:300}:{x:NPCC.x,y:500-195-30},noHint:true,startMistakes:(()=>{try{return +sessionStorage.getItem('gv_ep1_m')||0}catch(e){return 0}})(),
+ lessons:['На газовый объект — только в полном комплекте СИЗ, с газоанализатором и рацией','Неисправность ищут по перепаду давления на мнемосхеме','Гидраты — зимний враг газовика, их растворяют метанолом','Переключение потока: сначала открыть новый путь, потом закрыть старый']});
+</script><script src="progress.js"></script><script src="glossary.js"></script></body></html>

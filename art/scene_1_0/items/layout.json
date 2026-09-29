@@ -1,0 +1,55 @@
+{
+ "cabinet": "1.0_shkaf_room.png",
+ "cabinetSize": [
+  1018,
+  1228
+ ],
+ "note": "центр по x, низ по y; вписать в 150x155",
+ "items": {
+  "kaska": [
+   410,
+   228
+  ],
+  "naushniki": [
+   590,
+   228
+  ],
+  "perchatki": [
+   410,
+   432
+  ],
+  "gazoanalizator": [
+   590,
+   432
+  ],
+  "kostyum": [
+   410,
+   628
+  ],
+  "raciya": [
+   590,
+   628
+  ],
+  "kurtka": [
+   410,
+   816
+  ],
+  "kepka": [
+   590,
+   816
+  ],
+  "botinki": [
+   410,
+   1092
+  ],
+  "krossovki": [
+   590,
+   1092
+  ]
+ },
+ "wrong": [
+  "kurtka",
+  "kepka",
+  "krossovki"
+ ]
+}

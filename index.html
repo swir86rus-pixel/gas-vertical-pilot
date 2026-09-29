@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=2"></script>
+<style>
+:root{--ink:#2a211b;--paper:#f3e6cc;--acc:#d0632a;--dark:#1c1714;--muted:#cbb994}
+*{box-sizing:border-box}
+body{margin:0;background:var(--dark);font-family:Georgia,'Times New Roman',serif;color:var(--ink)}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
+.hero{position:relative;border:3px solid var(--ink);border-radius:8px;overflow:hidden;box-shadow:6px 6px 0 #0008;aspect-ratio:1600/613;min-height:340px;
+ background:url(art/scene_1_3/1.3_fon_small.jpg) center bottom/cover}
+.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(#1c171400 30%,#1c1714e6 85%)}
+.hero .pv{position:absolute;right:6%;bottom:4%;height:58%;z-index:1;filter:drop-shadow(4px 6px 0 #0006)}
+.hero .over{position:absolute;left:0;bottom:0;padding:22px;z-index:2;max-width:640px}
+.hero h1{margin:0;font-size:clamp(32px,6vw,58px);color:var(--paper);text-shadow:3px 3px 0 var(--ink)}
+.hero p{margin:6px 0 14px;font-size:clamp(15px,2.2vw,19px);color:#f7ecd6;text-shadow:1px 1px 0 #000}
+.btn{font:inherit;font-size:18px;background:#fff;border:3px solid var(--ink);border-radius:6px;padding:11px 20px;cursor:pointer;box-shadow:3px 3px 0 #0006;text-decoration:none;display:inline-block;color:var(--ink)}
+.btn:hover{background:#ffe9c7}.btn.main{background:var(--acc);color:#fff}.btn.main:hover{background:#e0733a}
+h2{color:var(--paper);font-size:24px;margin:30px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:var(--paper);border:3px solid var(--ink);border-radius:6px;box-shadow:5px 5px 0 #0008;padding:14px;position:relative}
+.card h3{margin:0 0 4px}.card .r{color:#a84c1d;font-weight:bold;font-size:14px}.card p{margin:6px 0 0;line-height:1.45;font-size:15px}
+.card.lock{opacity:.55}.card .tag{position:absolute;top:10px;right:10px;font-size:12px;background:#fff;border:2px solid var(--ink);border-radius:4px;padding:1px 6px}
+.card.ep{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.card.ep img{width:120px;height:120px;object-fit:contain;background:#e8ddc6;border:2px solid var(--ink);border-radius:4px}
+.how{color:#e8dcc4;line-height:1.6;font-size:16px}.how b{color:var(--paper)}
+#mus{position:fixed;top:14px;right:14px;z-index:5;font-size:20px;padding:6px 12px}
+#mus{top:calc(14px + env(safe-area-inset-top))}.wrap{padding-top:calc(18px + env(safe-area-inset-top))}
+.pf-telegram footer a,.pf-max footer a{display:none}
+footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
+@media(max-width:600px){.hero{aspect-ratio:auto;min-height:440px}.hero .over{right:0;padding:16px}.hero h1{font-size:30px}.hero .btn.main{font-size:16px;padding:10px 14px}.hero .pv{height:42%;right:2%;bottom:auto;top:6%}.card.ep{grid-template-columns:1fr}.card.ep img{width:100%;height:140px}}
+</style></head><body>
+<button class="btn" id="mus" title="Музыка">🎵</button>
+<div class="wrap">
+ <div class="hero">
+  <img class="pv" src="art/cast2/petrovich/arms_crossed.png" alt="">
+  <div class="over">
+   <h1>Газовая вертикаль</h1>
+   <p>Путь газовика от первой смены до руководителя. Пилотная версия: первый эпизод.</p>
+   <a class="btn main" href="episode1.html">▶ Начать: первая смена на УКПГ</a>
+  </div>
+ </div>
+
+ <h2>Эпизод</h2>
+ <div class="card ep">
+  <img src="art/kit1/ustye_elka_gidraty.png" alt="">
+  <div><h3>Эпизод 1. Первая смена на УКПГ</h3>
+   <div class="r">Оператор по добыче газа · наставник — мастер Петрович</div>
+   <p>Январь, Ямал, −42 °C. Переоденьтесь в спецодежду, пройдите с мастером Петровичем экскурсию по площадке, а потом разберитесь, почему скважина №101 теряет расход: мнемосхема, гидратная пробка, переключение потока.</p>
+   <p style="margin-top:10px"><a class="btn main" href="episode1.html">Играть</a></p></div>
+ </div>
+
+ <h2>Как играть</h2>
+ <div class="how"><b>◀ ▶</b> или <b>A / D</b> — ходить · <b>E</b>, пробел или <b>✋</b> — действие · подойдите к оборудованию или человеку, над героем появится подсказка.</div>
+
+ <h2>Скоро</h2>
+ <div class="grid">
+  <div class="card lock"><span class="tag">🔒</span><h3>Пуск ГПА</h3><div class="r">Машинист компрессоров</div><p>Компрессорная станция, наставник Ильдар.</p></div>
+  <div class="card lock"><span class="tag">🔒</span><h3>Обход трассы</h3><div class="r">Линейный трубопроводчик</div><p>Трасса в тайге, мастер ЛЭС Анна Сергеевна.</p></div>
+  <div class="card lock"><span class="tag">🔒</span><h3>Карьера</h3><div class="r">Мастер → начальник цеха → директор</div><p>Управление бригадой, цехом и филиалом.</p></div>
+ </div>
+ <footer>Газовая вертикаль · пилот · <a href="index-full.html" style="color:inherit">полная версия прототипа</a></footer>
+</div>
+<script>
+const mus=new Audio('audio/music.m4a');mus.loop=true;mus.volume=.35;
+let off=false;try{off=localStorage.getItem('gv_music')==='off'}catch(e){}
+const b=document.getElementById('mus'),upd=()=>b.textContent=off?'🔇':'🎵';upd();
+const start=()=>{if(!off&&mus.paused)mus.play().catch(()=>{})};
+addEventListener('pointerdown',start);addEventListener('keydown',start);
+b.onclick=e=>{e.stopPropagation();off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
+</script>
+</body></html>
