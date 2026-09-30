@@ -51,6 +51,19 @@ svg{display:block}
  #goal{max-width:100%;font-size:14px}#hud{flex-direction:column;align-items:flex-start}
  #pad button{width:72px;height:72px;font-size:30px}
  #dlg{bottom:calc(100px + env(safe-area-inset-bottom));width:calc(100% - 20px)}}
+/* реплики персонажей — комиксные «пузыри» над говорящим; реплики по рации — угловатый пузырь с молнией */
+#dlg.comic{width:max-content;max-width:min(78%,360px);min-width:90px;bottom:auto;transform:none;overflow:visible;max-height:none;background:#fff;border-radius:24px;padding:10px 16px 8px;box-shadow:3px 4px 0 #0004;cursor:pointer;font-family:'Comic Sans MS','Chalkboard SE','Comic Neue','Marker Felt',Georgia,serif}
+#dlg.comic .who{display:none}
+#dlg.comic .txt{font-size:16px;line-height:1.3;text-align:center}
+#dlg.comic .next{font-size:0;margin:0;line-height:1}#dlg.comic .next::after{content:'▸';font-size:14px}
+#dlg.comic::before,#dlg.comic::after{content:'';position:absolute;left:var(--tx,50%);border-style:solid;border-color:transparent;border-bottom-width:0}
+#dlg.comic::before{top:100%;margin-left:-11px;border-width:22px 17px 0 5px;border-top-color:var(--ink)}
+#dlg.comic::after{top:calc(100% - 1px);margin-left:-7.5px;border-width:15px 11px 0 4px;border-top-color:#fff}
+#dlg.comic.radio{border-radius:3px;background:#fffbe3;font-style:italic}
+#dlg.comic.radio .who{display:block;font-style:normal;font-size:12px;margin-bottom:2px;text-align:center}
+#dlg.comic.radio::before{border:0;width:22px;height:30px;margin-left:-11px;top:calc(100% - 1px);background:var(--ink);clip-path:polygon(15% 0,75% 0,50% 40%,95% 40%,20% 100%,38% 55%,0 55%)}
+#dlg.comic.radio::after{display:none}
+@media (max-height:460px){#dlg.comic{max-width:min(60%,340px);padding:6px 12px 5px}#dlg.comic .txt{font-size:14px}}
 </style>`);
 document.body.innerHTML=`<div id="game">
  <div id="world"><svg class="layer" id="bg" viewBox="0 0 2600 600" preserveAspectRatio="xMinYMax slice"></svg>
@@ -172,6 +185,12 @@ let cfg,PL,NPC,near=null,bubble=null;
 const keys={};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function setGoal(){$('goal').innerHTML='📋 <b>Задача:</b> '+cfg.goals[Math.min(cfg.goals.length-1,cfg.goalIdx(st.f))]}
+/* озвучка: cfg.voice={dir:'audio/ep1/',map:{'текст реплики':'id' или ['id1','id2']}} — клипы играют подряд, обрываются при закрытии реплики */
+let dlgAt=null;/* над кем висит комиксный пузырь: 'pl' | 'npc' | null (обычная плашка внизу) */
+let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал начать звук без касания — первое касание по реплике запускает клип, а не закрывает её */
+function voiceStop(){voRun++;voBlocked=null;if(voEl)voEl.pause()}
+function voice(txt){voiceStop();const v=cfg.voice&&cfg.voice.map[txt];if(!v)return;const run=voRun,list=[].concat(v);let i=0;
+ voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;voEl.src=cfg.voice.dir+list[i++]+'.m4a';voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
 function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  const npcName=cfg.npc&&cfg.npc.name;
  st.talk=who==='Вы'?'pl':npcName&&who===npcName?'npc':null;
@@ -180,11 +199,14 @@ function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  if(st.talk==='npc')st.dir=cfg.npc.x>st.x?1:-1;
  if(st.talk==='npc'&&/Молод|Верно|Правильн|Отлично|Хорош|Спасибо/.test(txt))setExpr('npc','happy',2500);
  if(/Стоп|СТОЙ|НИКАКОГО|Нельзя|нельзя!/.test(txt)&&who.startsWith&&!who.startsWith('Вы'))setExpr('pl','worry',2500);
- D.style.display='block';D.querySelector('.who').textContent=who;D.querySelector('.txt').innerHTML=txt;
+ voice(txt);
+ dlgAt=choices?null:who.startsWith('Вы')||who.includes('рации')?'pl':st.talk==='npc'?'npc':null;
+ D.classList.toggle('comic',!!dlgAt);D.classList.toggle('radio',!!dlgAt&&who.includes('рации')&&!who.startsWith('Вы'));D.style.left=D.style.top=dlgAt?'-999px':'';
+ D.style.display='block';D.querySelector('.who').textContent=(dlgAt?'📻 ':'')+who;D.querySelector('.txt').innerHTML=txt;
  const ch=D.querySelector('.ch');ch.innerHTML='';D.querySelector('.next').style.display=choices?'none':'block';
- const close=v=>{D.style.display='none';D.onclick=null;st.busy=false;st.talk=null;if(st.pose&&st.pose.auto)st.pose=null;res(v)};
+ const close=v=>{voiceStop();dlgAt=null;D.style.display='none';D.onclick=W.onclick=null;st.busy=false;st.talk=null;if(st.pose&&st.pose.auto)st.pose=null;res(v)};
  if(choices)choices.forEach((c,i)=>{const b=document.createElement('button');b.innerHTML=c;b.onclick=e=>{e.stopPropagation();close(i)};ch.appendChild(b)});
- else setTimeout(()=>D.onclick=()=>close(),150)})}
+ else setTimeout(()=>{D.onclick=()=>{if(voBlocked)return voBlocked();close()};if(dlgAt)W.onclick=D.onclick},150)})}
 async function seq(lines){for(const[w,t]of lines)await say(w,t)}
 async function walkTo(x){st.busy=true;while(Math.abs(st.x-x)>3){st.dir=Math.sign(x-st.x);st.x+=st.dir*3;st.step+=0.25;st.walking=true;await wait(16)}st.walking=false}
 // поза рук, чтобы кисти оказались на высоте hgt над землёй (плечо ~84, длина руки ~44)
@@ -246,7 +268,7 @@ function mark(who,sym,col='#c0392b'){const el=who==='npc'?NPC:PL;if(!el)return;c
  const hh=isSpr(el)?(who==='npc'?cfg.npc:cfg.player).sprites.h+20:175;const t=document.createElementNS('http://www.w3.org/2000/svg','g');t.innerHTML=`<circle cx="${x}" cy="${500+(st.y||0)*(who==='npc'?0:1)-hh}" r="16" fill="#fff" stroke="${INK}" stroke-width="3"/><text x="${x}" y="${500+(st.y||0)*(who==='npc'?0:1)-168}" text-anchor="middle" font-size="22" font-weight="bold" fill="${col}">${sym}</text>`;t.firstElementChild.nextElementSibling.setAttribute('y',500-hh+7);
  fg.appendChild(t);t.animate([{transform:'translateY(8px)',opacity:0},{transform:'translateY(0)',opacity:1,offset:.2},{opacity:1,offset:.8},{opacity:0}],{duration:1800}).onfinish=()=>t.remove()}
 function mistake(){st.mistakes++;setExpr('npc','angry',2500);setExpr('pl','worry',2500);mark('npc','!')}
-function finish(extra=''){st.done=true;setExpr('npc','happy',0);setExpr('pl','happy',0);const o=$('over');o.style.display='flex';
+function finish(extra=''){st.done=true;voice('#finish');setExpr('npc','happy',0);setExpr('pl','happy',0);const o=$('over');o.style.display='flex';
  const stars=st.mistakes===0?'⭐⭐⭐':st.mistakes<=2?'⭐⭐':'⭐';
  try{localStorage.setItem('gv_last_ep',cfg.id)}catch(e){}
  if(window.GV)GV.ep(cfg.id,[...stars].length);
@@ -298,6 +320,9 @@ function loop(){
  if(near&&!st.busy&&!st.lock&&!(st.pose&&st.pose.spr)){if(!bubble){bubble=document.createElement('div');bubble.className='bubble';GAME.appendChild(bubble)}
   bubble.textContent='✋ '+near.label;bubble.style.left=(st.x*scale-cam)+'px';bubble.style.top=(top0+vh-185*scale)+'px';bubble.style.display='block'}
  else if(bubble)bubble.style.display='none';
+ if(dlgAt&&D.style.display==='block'){const n=dlgAt==='npc',sx=(n?cfg.npc.x:st.x)*scale-cam,hh=isSpr(n?NPC:PL)?(n?cfg.npc:cfg.player).sprites.h:175;
+  const bw=D.offsetWidth,bh=D.offsetHeight,l=Math.max(6,Math.min(vw-bw-6,sx-bw/2));
+  D.style.left=l+'px';D.style.top=Math.max(4,top0+(500-hh)*scale-bh-24)+'px';D.style.setProperty('--tx',Math.max(26,Math.min(bw-26,sx-l))+'px')}
  if(st._ptr){const p=cfg.pointer(st.f);if(p&&!st.done&&!st.busy&&!(Math.abs(p.x-st.x)<60)){st._ptr.style.display='';st._ptr.setAttribute('transform',`translate(${p.x} ${p.y+Math.sin(Date.now()/220)*8})`)}else st._ptr.style.display='none'}
  const fl=$('flare');if(fl)fl.style.transform=`scale(1,${1+Math.sin(Date.now()/150)*0.12})`;
 if(cfg.tick)cfg.tick(Date.now()/400);
@@ -315,7 +340,7 @@ function sprLoop(moving){const t=Date.now();
  const wk=n.startsWith('walk');const bob=wk&&!sp.walkFrames?-Math.abs(Math.sin(st.step*1.1))*4:0;const br=wk?0:Math.sin(t/700)*.006;
  PL.setAttribute('transform',`translate(${st.x} ${500+(st.y||0)+bob}) scale(${st.dir*(1-br/2)} ${1+br})`);
  if(NPC){const c=cfg.npc;let m=c.sprites.idleCycle?c.sprites.idleCycle[Math.floor(t/7000)%c.sprites.idleCycle.length]:'idle';
-  if(c.walking&&c.sprites.walkFrames)m=c.sprites.walkFrames[Math.floor((c.step||0)/(c.sprites.walkStep||1.1))%c.sprites.walkFrames.length];else if(st.talk==='npc')m='talk';else if(NPC._expr==='angry')m='angry';else if(NPC._expr==='happy')m='happy';else if(c.pointAt&&c.pointAt(st.f))m='point';
+  if(c.walking&&c.sprites.walkFrames)m=c.sprites.walkFrames[Math.floor((c.step||0)/(c.sprites.walkStep||1.1))%c.sprites.walkFrames.length];else if(c.pointAt&&c.pointAt(st.f))m='point';else if(st.talk==='npc')m='talk';else if(NPC._expr==='angry')m='angry';else if(NPC._expr==='happy')m='happy';else if(c.pointAt&&c.pointAt(st.f))m='point';
   sprPose(NPC,m);const b2=Math.sin(t/800+1)*.006;const nd=c.walking?(c.dir||1):(st.x<c.x?-1:1);NPC.setAttribute('transform',`translate(${c.x} 500) scale(${nd*(1-b2/2)} ${1+b2})`)}}
 function fitLabels(){fg.querySelectorAll('text[data-w]').forEach(t=>{let fs=+t.getAttribute('font-size');const w=+t.dataset.w,h=+t.dataset.h;
  while(fs>6&&(t.getComputedTextLength()>w||fs>h*0.8)){fs-=0.5;t.setAttribute('font-size',fs)}})}
@@ -358,8 +383,9 @@ function run(c){cfg=c;document.title=c.title;
  hold('bl','arrowleft');hold('br','arrowright');$('bu').onclick=interact;GAME.addEventListener('contextmenu',e=>e.preventDefault());
  if(c.precip){setInterval(()=>{const s=document.createElement('div');s.className=c.precip==='rain'?'rainf':'snowf';s.style.left=Math.random()*100+'%';GAME.appendChild(s);
   s.animate([{transform:'translate(0,0)'},{transform:`translate(${c.precip==='rain'?-20:-60+Math.random()*40}px,${innerHeight+20}px)`}],{duration:c.precip==='rain'?900:4000+Math.random()*3000}).onfinish=()=>s.remove()},c.precip==='rain'?40:120)}
- /* фоновая музыка: включается с первым действием игрока (браузеры запрещают автозапуск звука) */
- if(c.music!==false){const mus=new Audio(c.music||'audio/music.m4a');mus.loop=true;mus.volume=.35;
+ /* фоновая музыка: включается с первым действием игрока (браузеры запрещают автозапуск звука).
+    В игре она приглушена (на заставке index.html — .35), чтобы не спорить с озвучкой */
+ if(c.music!==false){const mus=new Audio(c.music||'audio/music.m4a');mus.loop=true;mus.volume=c.musicVolume??.12;
   let off=false;try{off=localStorage.getItem('gv_music')==='off'}catch(e){}
   const mb=document.createElement('button');mb.className='paper';mb.style.cssText='position:absolute;top:58px;right:10px;z-index:6;font-size:18px;cursor:pointer;padding:4px 10px';
   const upd=()=>{mb.textContent=off?'🔇':'🎵';mb.title=off?'Включить музыку':'Выключить музыку'};upd();GAME.appendChild(mb);

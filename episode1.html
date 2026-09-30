@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=2"></script></head>
-<body><script src="engine.js?v=23"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301605"></script></head>
+<body><script src="engine.js?v=09301605"></script><script>
 const PC='art/cast2/petrovich/',{S2,st,say,seq,wait,walkTo,mistake,setGoal,$}=Engine;
 const f=st.f,A='art/';
 /* раздевалка: фон 1942x809 в масштабе 0.9, пол на y=500 */
@@ -14,7 +14,18 @@ const ORDER=['kostyum','botinki','perchatki','kaska','naushniki','gazoanalizator
 const WRONG={kurtka:'Пуховик — синтетика, электризуется. Искра рядом с газом — беда. Только спецодежда.',
  kepka:'Кепка от удара не спасёт. Только каска.',
  krossovki:'В кроссовках на минус сорок два по обледенелой площадке? Ноги отморозишь и поскользнёшься.'};
-const NEXT_HINT=['Начни с костюма. Он из ткани, которая не электризуется, — искра рядом с газом опасна.','Теперь обувь. Подошва с противоскользящим протектором и защитный носок — на обледенелой площадке без них никак.','Перчатки. Металл на морозе обжигает не хуже огня.','Каска — всегда, как только вышел за порог. Сверху много чего есть.','Возле компрессоров и сепараторов шумно — уши береги смолоду.','Главный прибор. Природный газ без цвета, а на промысле часто и без запаха — только он скажет, есть ли утечка.','И связь. На объекте в одиночку ничего не делают — всегда на связи.'];
+const NEXT_HINT=['Начни с костюма. Он из ткани, которая не электризуется, — искра рядом с газом опасна.','Теперь обувь. Подошва с противоскользящим протектором и защитный носок — на обледенелой площадке без них никак.','Перчатки. Металл на морозе обжигает не хуже огня.','Каска — всегда, как только вышел за порог. Сверху много чего есть.','Наушники. Возле компрессоров и сепараторов шумно — уши береги смолоду.','Газоанализатор — главный прибор. Природный газ без цвета, а на промысле часто и без запаха — только он скажет, есть ли утечка.','И рация. На объекте в одиночку ничего не делают — всегда на связи.'];
+/* озвучка Петровича: текст реплики -> клип(ы) из audio/ep1 */
+const VO={'Николай Петрович Воронов, мастер по добыче газа УКПГ-3. Но можешь звать меня просто Петрович.':'r02',
+ 'Первым делом — переодеться. На промысле своя одежда: она не копит искру, держит мороз и видна издалека. Шкаф с СИЗ — у стены.':'r03',
+ 'Шкаф с СИЗ — у стены. Одевайся, время идёт.':'r05',
+ 'Вот теперь готов. Пойдём, покажу хозяйство — сначала экскурсия, потом работа.':'r30',
+ [WRONG.kurtka]:'r20',[WRONG.kepka]:'r21',[WRONG.krossovki]:'r22'};
+NEXT_HINT.forEach((h,i)=>VO['Погоди с этим. '+h]=['r10','r1'+(i+1)]);
+/* рассказчик */
+const INTRO='<i>Вы приняты на работу оператором по добыче нефти и газа 3-го разряда на УКПГ-3 Северного газового промысла.<br>Ямал, январь, −42 °C. Первый рабочий день.</i>';VO[INTRO]='r00';
+/* герой */
+Object.assign(VO,{'Здравствуйте! Я новый оператор, сегодня мой первый день.':'r01','Понял, Петрович!':'r04','Сначала надо представиться мастеру.':'r06'});
 function scene(){
  let it='';
  for(const [n,[cx,by]] of Object.entries(ITEMS)){const [w0,h0]=SIZES[n],sc=Math.min(150/w0,155/h0)*CK,w=w0*sc,h=h0*sc;
@@ -44,7 +55,7 @@ async function dress(){
  const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:#000;opacity:0;transition:opacity 1s;z-index:20';document.body.appendChild(o);
  requestAnimationFrame(()=>o.style.opacity=1);await wait(1100);location.href='episode1-2.html'}
 const CV='art/cast2/hero/civ/',C='art/hero_civ/',Dd='art/cast2/hero/dress/',P='art/petrovich/';
-Engine.run({id:'ep1',pilot:true,title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
+Engine.run({id:'ep1',pilot:true,voice:{dir:'audio/ep1/',map:VO},title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
  weather:'🏠 +21 °C · 07:50',sky:'#1c1714',sky2:'#1c1714',keepSky:true,noClouds:true,start:170*SC,worldW:1942*K,
  bgImage:{src:A+'scene_1_0/1.0_fon.jpg',y:OY,w:1942*K,h:809*K},
  player:{sprites:{h:205,mouth:[10,174],walkFrames:['walk2','walk1','walk8','walk7','walk6','walk5','walk4','walk3'],walkStep:1.1,poses:{
@@ -54,6 +65,6 @@ Engine.run({id:'ep1',pilot:true,title:'Эпизод 1. Первая смена �
  goals:['Подойдите к мастеру и представьтесь','Переоденьтесь у шкафа СИЗ'],
  goalIdx:f=>!f.talked?0:1,pointerImg:'art/cast2/arrow.png',pointer:f=>f.dressed?null:!f.talked?{x:760*SC,y:500-185-30}:{x:CAB.x,y:CY0-20},
  scene,hotspots:[{x:760*SC,r:130,label:'Представиться',tip:'Мастер Петрович',act:talkMaster},{x:CAB.x,r:100,label:'Шкаф СИЗ',tip:'Шкаф со спецодеждой (СИЗ)',act:dress}],
- intro:[['','<i>Вы приняты на работу оператором по добыче нефти и газа 3-го разряда на УКПГ-3 Северного газового промысла.<br>Ямал, январь, −42 °C. Первый рабочий день.</i>']],
+ intro:[['',INTRO]],
  lessons:[]});
-</script><script src="progress.js"></script><script src="glossary.js"></script></body></html>
+</script><script src="progress.js?v=09301605"></script><script src="glossary.js?v=09301605"></script></body></html>
