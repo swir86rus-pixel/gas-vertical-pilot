@@ -63,13 +63,22 @@ svg{display:block}
 #dlg.comic.radio .who{display:block;font-style:normal;font-size:12px;margin-bottom:2px;text-align:center}
 #dlg.comic.radio::before{border:0;width:22px;height:30px;margin-left:-11px;top:calc(100% - 1px);background:var(--ink);clip-path:polygon(15% 0,75% 0,50% 40%,95% 40%,20% 100%,38% 55%,0 55%)}
 #dlg.comic.radio::after{display:none}
-@media (max-height:460px){#dlg.comic{max-width:min(60%,340px);padding:6px 12px 5px}#dlg.comic .txt{font-size:14px}}
+@media (max-height:460px){#dlg.comic{max-width:min(60%,340px);padding:6px 12px 5px}#dlg.comic .txt{font-size:14px}
+ /* телефон лёжа: плашки с текстом и вопросами — вверху, чтобы не закрывать героев и землю */
+ #dlg:not(.comic){top:calc(42px + env(safe-area-inset-top));bottom:auto;max-height:calc(100% - 50px)}}
+/* справка об объекте: небольшая карточка, открывается касанием по объекту, закрывается касанием по ней */
+#info{position:absolute;left:50%;top:calc(52px + env(safe-area-inset-top));transform:translateX(-50%);width:min(92%,400px);z-index:9;display:none;font-size:14px;line-height:1.4;cursor:pointer;padding:8px 12px}
+#info .who{font-weight:bold;color:var(--acc);margin-bottom:3px}#info .x{float:right;opacity:.6;margin-left:8px}
+@media (max-height:460px){#info{top:calc(44px + env(safe-area-inset-top));left:auto;right:calc(10px + env(safe-area-inset-right));transform:none;font-size:13px;width:min(50%,380px);max-height:calc(100% - 52px);overflow:auto}
+ #info.l{right:auto;left:calc(10px + env(safe-area-inset-left))}}
+@media (orientation:portrait) and (max-width:820px){#info{top:auto;bottom:calc(100px + env(safe-area-inset-bottom));width:calc(100% - 20px)}}
 </style>`);
 document.body.innerHTML=`<div id="game">
  <div id="world"><svg class="layer" id="bg" viewBox="0 0 2600 600" preserveAspectRatio="xMinYMax slice"></svg>
  <svg class="layer" id="fg" viewBox="0 0 2600 600" preserveAspectRatio="xMinYMax slice"></svg></div>
  <div id="hud"><div class="paper" id="goal"></div><div class="paper" id="temp"></div></div>
  <div id="dlg" class="paper"><div class="who"></div><div class="txt"></div><div class="ch"></div><div class="next">нажмите, чтобы продолжить ▸</div></div>
+ <div id="info" class="paper"><span class="x">✕</span><div class="who"></div><div class="txt"></div></div>
  <div id="pad"><div class="grp"><button id="bl">◀</button><button id="br">▶</button></div><button id="bu">✋</button></div>
  <div id="over"><div class="paper"></div></div></div>`;
 const $=id=>document.getElementById(id);
@@ -186,6 +195,10 @@ const keys={};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function setGoal(){$('goal').innerHTML='📋 <b>Задача:</b> '+cfg.goals[Math.min(cfg.goals.length-1,cfg.goalIdx(st.f))]}
 /* озвучка: cfg.voice={dir:'audio/ep1/',map:{'текст реплики':'id' или ['id1','id2']}} — клипы играют подряд, обрываются при закрытии реплики */
+/* справочная карточка: info(заголовок, html) показывает, info() прячет */
+function info(title,html){const I=$('info');if(!title){I.style.display='none';return}I.querySelector('.who').textContent=title;I.querySelector('.txt').innerHTML=html;
+ /* на телефоне лёжа карточка встаёт с той стороны, где нет пузыря с репликой */
+ const r=D.style.display==='block'&&D.classList.contains('comic')?D.getBoundingClientRect():null;I.classList.toggle('l',!!r&&r.left+r.width/2>GAME.clientWidth/2);I.style.display='block';I.onclick=e=>{e.stopPropagation();I.style.display='none'}}
 let stepEl=null;/* звук шагов (cfg.stepSound): зацикленная запись, играет, пока герой или спутник идут */
 let dlgAt=null;/* над кем висит комиксный пузырь: 'pl' | 'npc' | null (обычная плашка внизу) */
 let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал начать звук без касания — первое касание по реплике запускает клип, а не закрывает её */
@@ -405,5 +418,5 @@ function run(c){cfg=c;document.title=c.title;
  voicePreload();setGoal();loop();
  seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']])).then(()=>c.afterIntro&&c.afterIntro());
 }
-window.Engine={person,setExpr,mark,climb,run,G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,sparks,show,timing,order,mistake,finish,setGoal,$};
+window.Engine={info,person,setExpr,mark,climb,run,G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,sparks,show,timing,order,mistake,finish,setGoal,$};
 })();

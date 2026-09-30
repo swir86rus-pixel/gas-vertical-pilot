@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301625"></script></head>
-<body><script src="engine.js?v=09301625"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301639"></script></head>
+<body><script src="engine.js?v=09301639"></script><script>
 const PC='art/cast2/petrovich/',{G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,show,order,mistake,finish,setGoal,$}=Engine;
 const f=st.f;
 const A='art/';
@@ -23,10 +23,12 @@ ${img('kit1/ustye_elka_gidraty_fit.png',2290,215,1435,1004,'id="elka-g"')}</g>
 ${''}
 `}
 const NPCC={x:420};let NPC_POINT=0;
-const card=(t,what,why,safe)=>say('📋 '+t,`<div style="line-height:1.45"><b>Что это:</b> ${what}<br><b>Зачем:</b> ${why}<br><b style="color:#b0381e">⚠ Безопасность:</b> ${safe}</div>`);
 function glow(id,on){const el=$(id);if(id==='o-fakel'){el.style.transition='opacity .4s';el.style.opacity=on?.45:0;return}if(el)el.style.filter=on?'drop-shadow(0 0 6px #ffd23a) drop-shadow(0 0 12px #ffd23a)':''}
 async function npcTo(x){const x0=NPCC.x,n=Math.max(1,Math.round(Math.abs(x-x0)/3));NPCC.walking=true;NPCC.dir=Math.sign(x-x0)||1;for(let k=1;k<=n;k++){NPCC.x=x0+(x-x0)*k/n;NPCC.step=(NPCC.step||0)+0.25;await wait(16)}NPCC.walking=false}
-async function goTo(x,id){await Promise.all([npcTo(x+70),walkTo(x-110)]);st.dir=1;st.busy=false;if(id)glow(id,true)}
+async function goTo(x){await Promise.all([npcTo(x+70),walkTo(x-110)]);st.dir=1;st.busy=false}
+/* переход через затемнение: вместо долгой прогулки через всю площадку */
+async function jumpTo(x){const o=document.createElement('div');o.style.cssText='position:absolute;inset:0;background:#000;opacity:0;transition:opacity .6s;z-index:7;pointer-events:none';$('game').appendChild(o);
+ setTimeout(()=>o.style.opacity=1,30);await wait(750);NPCC.x=x+70;NPCC.dir=-1;st.x=x-110;st.dir=1;await wait(300);o.style.opacity=0;await wait(650);o.remove()}
 const TOUR=[
  ['o-pozh',180,'Пожарный щит','Это пожарный щит. Огнетушитель, кошма, песок. Где он — должен знать каждый.',
   'шкаф с первичными средствами пожаротушения','чтобы потушить возгорание в первые минуты','при пожаре: доклад по рации, отойти на безопасное расстояние.'],
@@ -84,12 +86,23 @@ Object.assign(VO,{'Понял, Петрович.':'w02',
  'Операторная, я на шлейфе скважины 101. Гидратная пробка, прошу подать метанол в шлейф.':'g02',
  'Иней сходит — метанол растворяет гидраты. Поток пустим в обход, пока шлейф отходит.':'g04',
  'Газ пошёл по обводной!':'v02'});
+/* справка об объекте открывается касанием по нему (в экскурсии и после); объект, который уже открывали, заново не подсвечивается */
+const CARD={},seen=new Set();let tourAt=-1;
+TOUR.forEach((r,i)=>(CARD[r[0]]=CARD[r[0]]||[]).push(i));
+const cardHtml=i=>`<b>Что это:</b> ${TOUR[i][4]}<br><b>Зачем:</b> ${TOUR[i][5]}<br><b style="color:#b0381e">⚠ Безопасность:</b> ${TOUR[i][6]}`;
+function openCard(id){const list=CARD[id];seen.add(id);glow(id,false);
+ if(list.length===1||list.includes(tourAt)){const k=list.includes(tourAt)?tourAt:list[0];Engine.info('📋 '+TOUR[k][2],cardHtml(k))}
+ else Engine.info('📋 '+list.map(k=>TOUR[k][2]).join(' и '),list.map(k=>`<b>${TOUR[k][2]}</b><br>${cardHtml(k)}`).join('<br><br>'))}
 async function tour(){
  st.lock=true;
  await say('Мастер Петрович','Смотри и запоминай. Газ идёт из-под земли, а мы его чистим, сушим и отправляем дальше. Пройдём по той же дороге, что и газ.');
  for(const [id,x,t,line,what,why,safe] of TOUR){
-  $('goal').innerHTML='📋 <b>Экскурсия:</b> '+t;await goTo(x,id);st.pose={spr:'idle'};
-  await card(t,what,why,safe);await say('Мастер Петрович',line);if(id)glow(id,false);st.pose=null}
+  tourAt=TOUR.findIndex(r=>r[2]===t);Engine.info();
+  $('goal').innerHTML='📋 <b>Экскурсия:</b> '+t+' <span style="opacity:.75">· справка — по нажатию на объект</span>';
+  if(tourAt===1)await jumpTo(x);else await goTo(x);
+  if(!seen.has(id))glow(id,true);st.pose={spr:'idle'};
+  await say('Мастер Петрович',line);glow(id,false);st.pose=null}
+ tourAt=-1;Engine.info();
  await say('Мастер Петрович','Три правила промысла запомни: газ не видно — верь прибору; не уверен — не трогай, спроси; всегда на связи.');
  const q=await say('Мастер Петрович','Хочешь, проверю, что запомнил? Три вопроса.',['Пройти зачёт','Пропустить']);
  if(q===0){
@@ -106,7 +119,7 @@ function mnemo(alarm){
  return `<div class="mnemo" style="position:relative;margin-top:6px"><img src="${A}scene_1_2/1.2_mnemo_pustaya.png" style="width:100%;display:block">
  <div style="position:absolute;left:${pc(66,1724)};top:${pc(248,831)};width:${pc(110,1724)};height:${pc(46,831)};background:#1a2c3b;color:#fff;font:1.75cqw sans-serif;display:flex;align-items:center">Q&nbsp;<small>устья</small></div>
  ${Object.entries(F).map(([k,[x1,y1,x2,y2]])=>`<div class="${V[k][1]?'bad':''}" style="position:absolute;left:${pc(x1,1724)};top:${pc(y1,831)};width:${pc(x2-x1,1724)};height:${pc(y2-y1,831)};display:flex;align-items:center;justify-content:center;font:bold 1.05cqw/1.05 sans-serif;white-space:normal;text-align:center;letter-spacing:-.02em;color:${V[k][1]?'#ff5a4a':'#5ee07a'}">${V[k][0].replace(" ","<br>")}</div>`).join('')}</div>`}
-document.head.insertAdjacentHTML('beforeend','<style>#dlg:has(.mnemo){width:min(96%,860px,calc((100vh - 190px)*2.07));bottom:70px;max-height:calc(100vh - 20px)}.mnemo{container-type:inline-size}.mnemo .bad{animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:.35}}</style>');
+document.head.insertAdjacentHTML('beforeend','<style>#dlg:has(.mnemo){width:min(96%,860px,calc((100vh - 190px)*2.07));bottom:70px;max-height:calc(100vh - 20px)}.mnemo{container-type:inline-size}.mnemo .bad{animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:.35}}@media (max-height:460px){#dlg:has(.mnemo){top:4px;bottom:auto;width:96%;max-height:calc(100vh - 8px);overflow:auto}#dlg:has(.mnemo) .txt{display:inline-block;width:calc(100% - 226px);vertical-align:top;font-size:13px}#dlg:has(.mnemo) .ch{display:inline-flex;width:220px;margin:0 0 0 6px;vertical-align:top}}</style>');
 voMnemo();
 const hot=[
  {get x(){return NPCC.x},r:110,label:'Поговорить',tip:'Мастер Петрович',act:talkMaster},
@@ -160,4 +173,5 @@ Engine.run({id:'ep1',pilot:true,music:false,stepSound:'audio/snow_steps.wav',voi
  scene,hotspots:hot,
  intro:[['',INTRO]],afterIntro:tour,pointerImg:'art/cast2/arrow.png',pointer:f=>!f.tour?null:!f.diag?{x:885,y:170}:!f.hydrate?{x:2500,y:260}:!f.valves?{x:1930,y:300}:{x:NPCC.x,y:500-195-30},noHint:true,startMistakes:(()=>{try{return +sessionStorage.getItem('gv_ep1_m')||0}catch(e){return 0}})(),
  lessons:['На газовый объект — только в полном комплекте СИЗ, с газоанализатором и рацией','Неисправность ищут по перепаду давления на мнемосхеме','Гидраты — зимний враг газовика, их растворяют метанолом','Переключение потока: сначала открыть новый путь, потом закрыть старый']});
-</script><script src="progress.js?v=09301625"></script><script src="glossary.js?v=09301625"></script></body></html>
+Object.keys(CARD).forEach(id=>{const el=$(id);if(!el)return;el.style.cursor='pointer';el.addEventListener('click',e=>{e.stopPropagation();openCard(id)})});
+</script><script src="progress.js?v=09301639"></script><script src="glossary.js?v=09301639"></script></body></html>
