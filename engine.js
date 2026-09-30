@@ -337,7 +337,7 @@ function loop(){
  if(near&&!st.busy&&!st.lock&&!(st.pose&&st.pose.spr)){if(!bubble){bubble=document.createElement('div');bubble.className='bubble';GAME.appendChild(bubble)}
   bubble.textContent='✋ '+near.label;bubble.style.left=(st.x*scale-cam)+'px';bubble.style.top=(top0+vh-185*scale)+'px';bubble.style.display='block'}
  else if(bubble)bubble.style.display='none';
- if(stepEl){const mv=(moving||(cfg.npc&&cfg.npc.walking))&&!document.hidden&&!st.done;if(mv&&stepEl.paused)stepEl.play().catch(()=>{});else if(!mv&&!stepEl.paused)stepEl.pause()}
+ if(stepEl){const mv=(moving||(cfg.npc&&cfg.npc.walking))&&!document.hidden&&!st.done;if(mv&&stepEl.paused)stepEl.play().catch(()=>{});else if(!mv&&!stepEl.paused){stepEl.pause();try{stepEl.currentTime=0}catch(e){}}}/* запись перематывается в начало: каждая прогулка начинается со звука шага */
  if(dlgAt&&D.style.display==='block'){const n=dlgAt==='npc',sx=(n?cfg.npc.x:st.x)*scale-cam,hh=isSpr(n?NPC:PL)?(n?cfg.npc:cfg.player).sprites.h:175;
   const bw=D.offsetWidth,bh=D.offsetHeight,l=Math.max(6,Math.min(vw-bw-6,sx-bw/2));
   D.style.left=l+'px';D.style.top=Math.max(4,top0+(500-hh)*scale-bh-24)+'px';D.style.setProperty('--tx',Math.max(26,Math.min(bw-26,sx-l))+'px')}
