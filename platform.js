@@ -59,3 +59,34 @@ setInterval(push,5000);
 addEventListener('pagehide',push);
 document.addEventListener('visibilitychange',()=>document.hidden&&push());
 })();
+
+/* ── Статистика: Яндекс Метрика + игровые события ─────────────────────────
+   Впишите номер счётчика в METRIKA_ID. Пока там 0 — ничего не загружается и не отправляется.
+   События собираются сами, без правок в эпизодах: адаптер раз в секунду смотрит на состояние
+   движка (Engine.st) и отправляет цель, когда игрок прошёл очередной шаг, ошибся или дошёл до финала.
+   Цели (создать в Метрике как «JavaScript-событие»):
+   game_open, ep1_start, ep1_site, ep1_finish, mistake и шаги вида razdevalka_dressed, ploshadka_valves. */
+(function(){
+const METRIKA_ID=113217473;
+const P=window.Platform||(window.Platform={kind:'web'});
+const page=location.pathname.split('/').pop()||'index.html';
+const SCENE={'episode1.html':'razdevalka','episode1-2.html':'ploshadka'}[page];
+const sent=new Set();
+P.track=function(name,params){if(!METRIKA_ID||!window.ym)return;try{ym(METRIKA_ID,'reachGoal',name,params||{})}catch(e){}};
+const once=(name,params)=>{if(sent.has(name))return;sent.add(name);P.track(name,params)};
+if(!METRIKA_ID)return;
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+ k=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+ym(METRIKA_ID,'init',{accurateTrackBounce:true,clickmap:false,trackLinks:false,params:{platform:P.kind}});
+if(page==='index.html')once('game_open',{platform:P.kind});
+if(!SCENE)return;
+once(SCENE==='razdevalka'?'ep1_start':'ep1_site',{platform:P.kind});
+let mist=null;
+setInterval(()=>{const st=window.Engine&&Engine.st;if(!st)return;
+ for(const k in st.f)if(st.f[k]===1||st.f[k]===true)once(SCENE+'_'+k);          /* пройденные шаги */
+ if(mist===null)mist=st.mistakes||0;
+ if(st.mistakes>mist){mist=st.mistakes;const g=document.getElementById('goal');
+  P.track('mistake',{scene:SCENE,goal:g?g.textContent.replace(/^\W*Задача:\s*/,''):''})}
+ if(st.done)once('ep1_finish',{mistakes:st.mistakes||0,platform:P.kind});
+},1000);
+})();
