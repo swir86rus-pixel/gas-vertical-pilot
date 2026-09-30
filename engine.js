@@ -186,6 +186,7 @@ const keys={};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function setGoal(){$('goal').innerHTML='📋 <b>Задача:</b> '+cfg.goals[Math.min(cfg.goals.length-1,cfg.goalIdx(st.f))]}
 /* озвучка: cfg.voice={dir:'audio/ep1/',map:{'текст реплики':'id' или ['id1','id2']}} — клипы играют подряд, обрываются при закрытии реплики */
+let stepEl=null;/* звук шагов (cfg.stepSound): зацикленная запись, играет, пока герой или спутник идут */
 let dlgAt=null;/* над кем висит комиксный пузырь: 'pl' | 'npc' | null (обычная плашка внизу) */
 let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал начать звук без касания — первое касание по реплике запускает клип, а не закрывает её */
 const voCache={};/* клипы сцены заранее скачиваются в память, чтобы реплика звучала сразу, без ожидания сети */
@@ -323,6 +324,7 @@ function loop(){
  if(near&&!st.busy&&!st.lock&&!(st.pose&&st.pose.spr)){if(!bubble){bubble=document.createElement('div');bubble.className='bubble';GAME.appendChild(bubble)}
   bubble.textContent='✋ '+near.label;bubble.style.left=(st.x*scale-cam)+'px';bubble.style.top=(top0+vh-185*scale)+'px';bubble.style.display='block'}
  else if(bubble)bubble.style.display='none';
+ if(stepEl){const mv=(moving||(cfg.npc&&cfg.npc.walking))&&!document.hidden&&!st.done;if(mv&&stepEl.paused)stepEl.play().catch(()=>{});else if(!mv&&!stepEl.paused)stepEl.pause()}
  if(dlgAt&&D.style.display==='block'){const n=dlgAt==='npc',sx=(n?cfg.npc.x:st.x)*scale-cam,hh=isSpr(n?NPC:PL)?(n?cfg.npc:cfg.player).sprites.h:175;
   const bw=D.offsetWidth,bh=D.offsetHeight,l=Math.max(6,Math.min(vw-bw-6,sx-bw/2));
   D.style.left=l+'px';D.style.top=Math.max(4,top0+(500-hh)*scale-bh-24)+'px';D.style.setProperty('--tx',Math.max(26,Math.min(bw-26,sx-l))+'px')}
@@ -397,6 +399,9 @@ function run(c){cfg=c;document.title=c.title;
   ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,start,{once:false}));
   mb.onclick=e=>{e.stopPropagation();off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
   document.addEventListener('visibilitychange',()=>{document.hidden?mus.pause():start()})}
+ if(c.stepSound){stepEl=new Audio(c.stepSound);stepEl.loop=true;
+  /* телефон разрешает звук только после касания: первым касанием «будим» запись шагов */
+  addEventListener('pointerdown',()=>{if(stepEl.paused)stepEl.play().then(()=>{if(!st.walking)stepEl.pause()}).catch(()=>{})},{once:true})}
  voicePreload();setGoal();loop();
  seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']])).then(()=>c.afterIntro&&c.afterIntro());
 }
