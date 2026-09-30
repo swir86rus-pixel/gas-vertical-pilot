@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301639"></script>
+<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301644"></script>
 <style>
 :root{--ink:#2a211b;--paper:#f3e6cc;--acc:#d0632a;--dark:#1c1714;--muted:#cbb994}
 *{box-sizing:border-box}
@@ -27,7 +27,9 @@ h2{color:var(--paper);font-size:24px;margin:30px 0 12px}
 #mus{top:calc(14px + env(safe-area-inset-top))}.wrap{padding-top:calc(18px + env(safe-area-inset-top))}
 .pf-telegram footer a,.pf-max footer a{display:none}
 footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
-@media(max-width:600px){.hero{aspect-ratio:auto;min-height:440px}.hero .over{right:0;padding:16px}.hero h1{font-size:30px}.hero .btn.main{font-size:16px;padding:10px 14px}.hero .pv{height:42%;right:2%;bottom:auto;top:6%}.card.ep{grid-template-columns:1fr}.card.ep img{width:100%;height:140px}}
+/* телефон стоя: заголовок и кнопка — вверху на фоне неба, Петрович стоит внизу на земле */
+@media(max-width:600px){.hero{aspect-ratio:auto;min-height:480px}.hero:after{background:linear-gradient(#1c1714e6 18%,#1c171400 60%)}
+ .hero .over{right:0;top:0;bottom:auto;padding:14px 62px 16px 16px}.hero h1{font-size:30px}.hero .btn.main{font-size:16px;padding:10px 14px}.hero .pv{height:46%;right:5%;bottom:2%;top:auto}.card.ep{grid-template-columns:1fr}.card.ep img{width:100%;height:140px}}
 </style></head><body>
 <button class="btn" id="mus" title="Музыка">🎵</button>
 <div class="wrap">
