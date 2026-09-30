@@ -188,9 +188,12 @@ function setGoal(){$('goal').innerHTML='📋 <b>Задача:</b> '+cfg.goals[Ma
 /* озвучка: cfg.voice={dir:'audio/ep1/',map:{'текст реплики':'id' или ['id1','id2']}} — клипы играют подряд, обрываются при закрытии реплики */
 let dlgAt=null;/* над кем висит комиксный пузырь: 'pl' | 'npc' | null (обычная плашка внизу) */
 let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал начать звук без касания — первое касание по реплике запускает клип, а не закрывает её */
+const voCache={};/* клипы сцены заранее скачиваются в память, чтобы реплика звучала сразу, без ожидания сети */
+function voicePreload(){if(!cfg.voice)return;[...new Set(Object.values(cfg.voice.map).flat())].forEach(id=>
+ fetch(cfg.voice.dir+id+'.m4a').then(r=>r.ok?r.blob():null).then(b=>{if(b)voCache[id]=URL.createObjectURL(new Blob([b],{type:'audio/mp4'}))}).catch(()=>{}))}
 function voiceStop(){voRun++;voBlocked=null;if(voEl)voEl.pause()}
 function voice(txt){voiceStop();const v=cfg.voice&&cfg.voice.map[txt];if(!v)return;const run=voRun,list=[].concat(v);let i=0;
- voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;voEl.src=cfg.voice.dir+list[i++]+'.m4a';voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
+ voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;const id=list[i++];voEl.src=voCache[id]||cfg.voice.dir+id+'.m4a';voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
 function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  const npcName=cfg.npc&&cfg.npc.name;
  st.talk=who==='Вы'?'pl':npcName&&who===npcName?'npc':null;
@@ -384,8 +387,9 @@ function run(c){cfg=c;document.title=c.title;
  if(c.precip){setInterval(()=>{const s=document.createElement('div');s.className=c.precip==='rain'?'rainf':'snowf';s.style.left=Math.random()*100+'%';GAME.appendChild(s);
   s.animate([{transform:'translate(0,0)'},{transform:`translate(${c.precip==='rain'?-20:-60+Math.random()*40}px,${innerHeight+20}px)`}],{duration:c.precip==='rain'?900:4000+Math.random()*3000}).onfinish=()=>s.remove()},c.precip==='rain'?40:120)}
  /* фоновая музыка: включается с первым действием игрока (браузеры запрещают автозапуск звука).
-    В игре она приглушена (на заставке index.html — .35), чтобы не спорить с озвучкой */
- if(c.music!==false){const mus=new Audio(c.music||'audio/music.m4a');mus.loop=true;mus.volume=c.musicVolume??.12;
+    В игре играет приглушённая копия файла (music_quiet = треть громкости music), чтобы не спорить с озвучкой:
+    тише сделан сам файл, потому что iPhone не даёт странице менять громкость (mus.volume там не действует) */
+ if(c.music!==false){const mus=new Audio(c.music||'audio/music_quiet.m4a');mus.loop=true;mus.volume=.35;
   let off=false;try{off=localStorage.getItem('gv_music')==='off'}catch(e){}
   const mb=document.createElement('button');mb.className='paper';mb.style.cssText='position:absolute;top:58px;right:10px;z-index:6;font-size:18px;cursor:pointer;padding:4px 10px';
   const upd=()=>{mb.textContent=off?'🔇':'🎵';mb.title=off?'Включить музыку':'Выключить музыку'};upd();GAME.appendChild(mb);
@@ -393,7 +397,7 @@ function run(c){cfg=c;document.title=c.title;
   ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,start,{once:false}));
   mb.onclick=e=>{e.stopPropagation();off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
   document.addEventListener('visibilitychange',()=>{document.hidden?mus.pause():start()})}
- setGoal();loop();
+ voicePreload();setGoal();loop();
  seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']])).then(()=>c.afterIntro&&c.afterIntro());
 }
 window.Engine={person,setExpr,mark,climb,run,G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,sparks,show,timing,order,mistake,finish,setGoal,$};
