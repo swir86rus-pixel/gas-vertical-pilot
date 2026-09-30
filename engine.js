@@ -339,7 +339,7 @@ function loop(){
  else if(bubble)bubble.style.display='none';
  /* шаги: запись крутится по кругу без звука и «открывает рот», пока кто-то идёт. Так не нужно запускать звук вне касания — телефоны это запрещают */
  if(stepEl){const mv=(moving||(cfg.npc&&cfg.npc.walking))&&!document.hidden&&!st.done;
-  if(mv&&stepEl.muted){try{stepEl.currentTime=0}catch(e){}stepEl.muted=false;if(stepEl.paused)stepEl.play().catch(()=>{})}else if(!mv&&!stepEl.muted)stepEl.muted=true}
+  if(mv&&stepEl.muted){try{stepEl.currentTime=cfg.stepStart||0}catch(e){}stepEl.muted=false;if(stepEl.paused)stepEl.play().catch(()=>{})}else if(!mv&&!stepEl.muted)stepEl.muted=true}
  if(dlgAt&&D.style.display==='block'){const n=dlgAt==='npc',sx=(n?cfg.npc.x:st.x)*scale-cam,hh=isSpr(n?NPC:PL)?(n?cfg.npc:cfg.player).sprites.h:175;
   const bw=D.offsetWidth,bh=D.offsetHeight,l=Math.max(6,Math.min(vw-bw-6,sx-bw/2));
   D.style.left=l+'px';D.style.top=Math.max(4,top0+(500-hh)*scale-bh-24)+'px';D.style.setProperty('--tx',Math.max(26,Math.min(bw-26,sx-l))+'px')}
@@ -414,9 +414,11 @@ function run(c){cfg=c;document.title=c.title;
   ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,start,{once:false}));
   mb.onclick=e=>{e.stopPropagation();off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
   document.addEventListener('visibilitychange',()=>{document.hidden?mus.pause():start()})}
- if(c.stepSound){stepEl=new Audio(c.stepSound);stepEl.loop=true;stepEl.muted=true;
+ if(c.stepSound){stepEl=new Audio();stepEl.loop=true;stepEl.muted=true;
+  /* запись целиком скачивается в память: тогда перемотка к нужному месту работает на любом хостинге */
+  fetch(c.stepSound).then(r=>r.blob()).then(b=>{stepEl.src=URL.createObjectURL(b)}).catch(()=>{stepEl.src=c.stepSound});
   /* запуск — по любому касанию (и сразу, если площадка разрешает): дальше запись играет беззвучно и не останавливается */
-  const wake=()=>{if(stepEl.paused&&!document.hidden)stepEl.play().catch(()=>{})};wake();
+  const wake=()=>{if(stepEl.src&&stepEl.paused&&!document.hidden)stepEl.play().catch(()=>{})};
   ['click','touchend','pointerup','keydown'].forEach(ev=>addEventListener(ev,wake,true));
   document.addEventListener('visibilitychange',()=>{document.hidden?stepEl.pause():wake()})}
  setGoal();loop();
