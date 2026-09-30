@@ -414,9 +414,15 @@ function run(c){cfg=c;document.title=c.title;
   document.addEventListener('visibilitychange',()=>{document.hidden?mus.pause():start()})}
  if(c.stepSound){stepEl=new Audio(c.stepSound);stepEl.loop=true;
   /* телефон разрешает звук только после касания: первым касанием «будим» запись шагов */
-  addEventListener('pointerdown',()=>{if(stepEl.paused)stepEl.play().then(()=>{if(!st.walking)stepEl.pause()}).catch(()=>{})},{once:true})}
- voicePreload();setGoal();loop();
- seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']])).then(()=>c.afterIntro&&c.afterIntro());
+  let woke=false;const wake=()=>{if(woke)return;stepEl.play().then(()=>{woke=true;if(!st.walking)stepEl.pause()}).catch(()=>{})};
+  ['click','touchend','pointerup','keydown'].forEach(ev=>addEventListener(ev,wake,true))}
+ setGoal();loop();
+ /* пока грузятся картинки сцены — заставка «Загрузка»; озвучка подкачивается после картинок, чтобы не отнимать у них канал */
+ const ld=document.createElement('div');ld.style.cssText='position:absolute;inset:0;z-index:20;background:#1c1714;color:#f3e6cc;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity .4s';
+ ld.textContent='Загрузка…';GAME.appendChild(ld);
+ const urls=[...new Set([...W.querySelectorAll('image')].map(i=>i.getAttribute('href')).filter(Boolean))];let got=0;
+ const ready=Promise.race([wait(12000),Promise.all(urls.map(u=>new Promise(r=>{const im=new Image();im.onload=im.onerror=()=>{ld.textContent='Загрузка… '+Math.round(++got/urls.length*100)+'%';r()};im.src=u})))]);
+ ready.then(()=>{ld.style.opacity=0;setTimeout(()=>ld.remove(),450);voicePreload();return seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']]))}).then(()=>c.afterIntro&&c.afterIntro());
 }
 window.Engine={info,person,setExpr,mark,climb,run,G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,sparks,show,timing,order,mistake,finish,setGoal,$};
 })();

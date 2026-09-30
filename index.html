@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301650"></script>
+<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301705"></script>
 <style>
 :root{--ink:#2a211b;--paper:#f3e6cc;--acc:#d0632a;--dark:#1c1714;--muted:#cbb994}
 *{box-sizing:border-box}
 body{margin:0;background:var(--dark);font-family:Georgia,'Times New Roman',serif;color:var(--ink)}
 .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
-.hero{position:relative;border:3px solid var(--ink);border-radius:8px;overflow:hidden;box-shadow:6px 6px 0 #0008;aspect-ratio:1600/613;min-height:340px;
- background:url(art/scene_1_3/1.3_fon_small.jpg) center bottom/cover}
-.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(#1c171400 30%,#1c1714e6 85%)}
+.hero{position:relative;border:3px solid var(--ink);border-radius:8px;overflow:hidden;box-shadow:6px 6px 0 #0008;width:100%;aspect-ratio:1600/613;min-height:340px;background:var(--dark)}
+/* фон и Петрович — одна «картина» постоянных пропорций, прижатая к правому краю: на узком экране она просто обрезается слева,
+   а Петрович остаётся на том же месте фона, что и на широком */
+.hero .bgw{position:absolute;right:0;bottom:0;height:100%;aspect-ratio:1600/613;min-width:100%;background:url(art/scene_1_3/1.3_fon_small.jpg) center bottom/cover}
+.hero .bgw:after{content:'';position:absolute;inset:0;background:linear-gradient(#1c171400 30%,#1c1714e6 85%)}
 .hero .pv{position:absolute;right:6%;bottom:4%;height:58%;z-index:1;filter:drop-shadow(4px 6px 0 #0006)}
 .hero .over{position:absolute;left:0;bottom:0;padding:22px;z-index:2;max-width:640px}
 .hero h1{margin:0;font-size:clamp(32px,6vw,58px);color:var(--paper);text-shadow:3px 3px 0 var(--ink)}
@@ -28,13 +30,13 @@ h2{color:var(--paper);font-size:24px;margin:30px 0 12px}
 .pf-telegram footer a,.pf-max footer a{display:none}
 footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
 /* телефон стоя: заголовок и кнопка — вверху на фоне неба, Петрович стоит внизу на земле */
-@media(max-width:600px){.hero{aspect-ratio:auto;min-height:480px}.hero:after{background:linear-gradient(#1c1714e6 18%,#1c171400 60%)}
- .hero .over{right:0;top:0;bottom:auto;padding:14px 62px 16px 16px}.hero h1{font-size:30px}.hero .btn.main{font-size:16px;padding:10px 14px}.hero .pv{height:46%;right:5%;bottom:2%;top:auto}.card.ep{grid-template-columns:1fr}.card.ep img{width:100%;height:140px}}
+@media(max-width:600px){.hero{aspect-ratio:auto;height:480px}.hero .bgw:after{background:linear-gradient(#1c1714e6 16%,#1c171400 50%)}
+ .hero .over{right:0;top:0;bottom:auto;padding:14px 16px}.hero h1{font-size:28px}.hero p{margin:4px 0 10px}.hero .btn.main{font-size:16px;padding:9px 14px}.card.ep{grid-template-columns:1fr}.card.ep img{width:100%;height:140px}}
 </style></head><body>
 <button class="btn" id="mus" title="Музыка">🎵</button>
 <div class="wrap">
  <div class="hero">
-  <img class="pv" src="art/cast2/petrovich/arms_crossed.png" alt="">
+  <div class="bgw"><img class="pv" src="art/cast2/petrovich/arms_crossed.png" alt=""></div>
   <div class="over">
    <h1>Газовая вертикаль</h1>
    <p>Путь газовика от первой смены до руководителя. Пилотная версия: первый эпизод.</p>
@@ -67,7 +69,9 @@ const mus=new Audio('audio/music.m4a');mus.loop=true;mus.volume=.35;
 let off=false;try{off=localStorage.getItem('gv_music')==='off'}catch(e){}
 const b=document.getElementById('mus'),upd=()=>b.textContent=off?'🔇':'🎵';upd();
 const start=()=>{if(!off&&mus.paused)mus.play().catch(()=>{})};
-addEventListener('pointerdown',start);addEventListener('keydown',start);
-b.onclick=e=>{e.stopPropagation();off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
+/* звук разрешён только после касания; на iPhone «касанием» считается отпускание пальца, поэтому слушаем click/touchend.
+   Касание самой кнопки музыки сюда не входит — иначе первое нажатие на неё включало музыку и тут же выключало */
+['click','touchend','keydown'].forEach(ev=>addEventListener(ev,e=>{if(e.target!==b)start()}));
+b.onclick=e=>{e.stopPropagation();if(!off&&mus.paused){mus.play().catch(()=>{});return}off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
 </script>
 </body></html>
