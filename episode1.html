@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301644"></script></head>
-<body><script src="engine.js?v=09301644"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301650"></script></head>
+<body><script src="engine.js?v=09301650"></script><script>
 const PC='art/cast2/petrovich/',{S2,st,say,seq,wait,walkTo,mistake,setGoal,$}=Engine;
 const f=st.f,A='art/';
 /* раздевалка: фон 1942x809 в масштабе 0.9, пол на y=500 */
@@ -64,7 +64,7 @@ Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},titl
  npc:{x:760*SC,name:'Мастер Петрович',sprites:{h:185,mouth:[30,144],idleCycle:['idle','arms_crossed','idle','thermos'],poses:{idle:[PC+'idle.png',816,1200,0.553],talk:[PC+'talk.png',739,1200,0.505],point:[PC+'point.png',1224,1200,0.336],happy:[PC+'happy.png',707,1200,0.544],angry:[PC+'angry.png',774,1200,0.55],arms_crossed:[PC+'arms_crossed.png',598,1200,0.463],thermos:[PC+'thermos.png',690,1200,0.539]}}},
  goals:['Подойдите к мастеру и представьтесь','Переоденьтесь у шкафа СИЗ'],
  goalIdx:f=>!f.talked?0:1,pointerImg:'art/cast2/arrow.png',pointer:f=>f.dressed?null:!f.talked?{x:760*SC,y:500-185-30}:{x:CAB.x,y:CY0-20},
- scene,hotspots:[{x:760*SC,r:130,label:'Представиться',tip:'Мастер Петрович',act:talkMaster},{x:CAB.x,r:100,label:'Шкаф СИЗ',tip:'Шкаф со спецодеждой (СИЗ)',act:dress}],
+ scene,hotspots:[{x:760*SC,r:130,when:f=>!f.talked,label:'Представиться',tip:'Мастер Петрович',act:talkMaster},{x:CAB.x,r:100,label:'Шкаф СИЗ',tip:'Шкаф со спецодеждой (СИЗ)',act:dress}],
  intro:[['',INTRO]],
  lessons:[]});
-</script><script src="progress.js?v=09301644"></script><script src="glossary.js?v=09301644"></script></body></html>
+</script><script src="progress.js?v=09301650"></script><script src="glossary.js?v=09301650"></script></body></html>
