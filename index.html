@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301709"></script>
+<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301715"></script>
 <style>
 :root{--ink:#2a211b;--paper:#f3e6cc;--acc:#d0632a;--dark:#1c1714;--muted:#cbb994}
 *{box-sizing:border-box}
@@ -71,7 +71,9 @@ const b=document.getElementById('mus'),upd=()=>b.textContent=off?'🔇':'🎵';u
 const start=()=>{if(!off&&mus.paused)mus.play().catch(()=>{})};
 /* звук разрешён только после касания; на iPhone «касанием» считается отпускание пальца, поэтому слушаем click/touchend.
    Касание самой кнопки музыки сюда не входит — иначе первое нажатие на неё включало музыку и тут же выключало */
-['click','touchend','keydown'].forEach(ev=>addEventListener(ev,e=>{if(e.target!==b)start()}));
+['click','touchend','pointerup','keydown'].forEach(ev=>addEventListener(ev,e=>{if(e.target!==b)start()},true));
+start();/* попытка включить сразу при открытии: в мессенджере это бывает разрешено; если нет — музыка начнётся с первого касания */
+document.addEventListener('visibilitychange',()=>{document.hidden?mus.pause():start()});
 b.onclick=e=>{e.stopPropagation();if(!off&&mus.paused){mus.play().catch(()=>{});return}off=!off;try{localStorage.setItem('gv_music',off?'off':'on')}catch(e){}off?mus.pause():mus.play().catch(()=>{});upd()};
 </script>
 </body></html>

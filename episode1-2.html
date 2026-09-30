@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301709"></script></head>
-<body><script src="engine.js?v=09301709"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301715"></script></head>
+<body><script src="engine.js?v=09301715"></script><script>
 const PC='art/cast2/petrovich/',{G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,show,order,mistake,finish,setGoal,$}=Engine;
 const f=st.f;
 const A='art/';
@@ -174,4 +174,4 @@ Engine.run({id:'ep1',pilot:true,music:false,stepSound:'audio/snow_steps5.wav',vo
  intro:[['',INTRO]],afterIntro:tour,pointerImg:'art/cast2/arrow.png',pointer:f=>!f.tour?null:!f.diag?{x:885,y:170}:!f.hydrate?{x:2500,y:260}:!f.valves?{x:1930,y:300}:{x:NPCC.x,y:500-195-30},noHint:true,startMistakes:(()=>{try{return +sessionStorage.getItem('gv_ep1_m')||0}catch(e){return 0}})(),
  lessons:['На газовый объект — только в полном комплекте СИЗ, с газоанализатором и рацией','Неисправность ищут по перепаду давления на мнемосхеме','Гидраты — зимний враг газовика, их растворяют метанолом','Переключение потока: сначала открыть новый путь, потом закрыть старый']});
 Object.keys(CARD).forEach(id=>{const el=$(id);if(!el)return;el.style.cursor='pointer';el.addEventListener('click',e=>{e.stopPropagation();openCard(id)})});
-</script><script src="progress.js?v=09301709"></script><script src="glossary.js?v=09301709"></script></body></html>
+</script><script src="progress.js?v=09301715"></script><script src="glossary.js?v=09301715"></script></body></html>
