@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=09301759"></script></head>
-<body><script src="engine.js?v=09301759"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011511"></script></head>
+<body><script src="engine.js?v=10011511"></script><script>
 const PC='art/cast2/petrovich/',{G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,show,order,mistake,finish,setGoal,$}=Engine;
 const f=st.f;
 const A='art/';
@@ -165,7 +165,7 @@ const C2='art/cast2/hero/',H='art/hero2/',H3='art/hero3/',H5='art/hero5/',P='art
 Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
  weather:'❄️ −42 °C · 09:40',precip:'snow',start:300,
  bgImage:{src:A+'scene_1_3/1.3_fon.jpg?v=2',y:-186,w:2600,h:900},
- player:{sprites:{h:215,mouth:[18,178],valveDx:35,walkFrames:['walk2','walk1','walk8','walk7','walk6','walk5','walk4','walk3'],walkStep:1.1,maxH:1340,poses:{
+ player:{sprites:{h:215,mouth:[18,178],valveDx:35,walkFrames:['walk5','walk4','walk3','walk6','walk1','walk8','walk7','walk6'],walkStep:1.1,maxH:1340,poses:{
   idle:[C2+'idle.png',617,1340,0.582],walk1:[C2+'walk8/f1.png',856,1320,0.498],walk2:[C2+'walk8/f2.png',858,1310,0.55],walk3:[C2+'walk8/f3.png',887,1276,0.571],walk4:[C2+'walk8/f4.png',910,1295,0.534],walk5:[C2+'walk8/f5.png',838,1302,0.488],walk6:[C2+'walk8/f6.png',530,1308,0.612],walk7:[C2+'walk8/f7.png',828,1266,0.616],walk8:[C2+'walk8/f8.png',867,1318,0.554],talk:[C2+'talk.png',718,1358,0.476],point:[C2+'point.png',1060,1319,0.333],happy:[C2+'happy.png',617,1338,0.581],alarm:[C2+'alarm.png',613,1329,0.564],detector:[C2+'detector.png',604,1338,0.582],radio:[C2+'radio.png',685,1385,0.529],crank:[C2+'crank.png',723,1352,0.396],crouch:[C2+'crouch.png',781,1037,0.68],manometer:[C2+'point.png',1060,1319,0.333]}}},
  npc:{get x(){return NPCC.x},get walking(){return NPCC.walking},get step(){return NPCC.step},get dir(){return NPCC.dir},pointAt:()=>NPC_POINT,name:'Мастер Петрович',sprites:{h:195,walkFrames:['walk8','walk7','walk6','walk5','walk3','walk2','walk1'],walkStep:1.1,mouth:[30,152],idleCycle:['idle','arms_crossed','idle','thermos'],poses:{idle:[PC+'idle.png',816,1200,0.553],talk:[PC+'talk.png',739,1200,0.505],point:[PC+'point.png',1224,1200,0.336],happy:[PC+'happy.png',707,1200,0.544],angry:[PC+'angry.png',774,1200,0.55],arms_crossed:[PC+'arms_crossed.png',598,1200,0.463],thermos:[PC+'thermos.png',690,1200,0.539],walk1:[PC+'walk8/f1.png',743,1145,0.531],walk2:[PC+'walk8/f2.png',508,1164,0.59],walk3:[PC+'walk8/f3.png',771,1142,0.561],walk4:[PC+'walk8/f4.png',803,1151,0.564],walk5:[PC+'walk8/f5.png',762,1187,0.513],walk6:[PC+'walk8/f6.png',578,1149,0.547],walk7:[PC+'walk8/f7.png',811,1167,0.565],walk8:[PC+'walk8/f8.png',741,1185,0.544]}}},
  goals:['Экскурсия по площадке с Петровичем','Найдите неисправность в операторной (мнемосхема)','Осмотрите шлейф скважины №101','Переключите поток на узле задвижек','Вернитесь к мастеру'],
@@ -174,4 +174,4 @@ Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},titl
  intro:[['',INTRO]],afterIntro:tour,pointerImg:'art/cast2/arrow.png',pointer:f=>!f.tour?null:!f.diag?{x:885,y:170}:!f.hydrate?{x:2500,y:260}:!f.valves?{x:1930,y:300}:{x:NPCC.x,y:500-195-30},noHint:true,startMistakes:(()=>{try{return +sessionStorage.getItem('gv_ep1_m')||0}catch(e){return 0}})(),
  lessons:['На газовый объект — только в полном комплекте СИЗ, с газоанализатором и рацией','Неисправность ищут по перепаду давления на мнемосхеме','Гидраты — зимний враг газовика, их растворяют метанолом','Переключение потока: сначала открыть новый путь, потом закрыть старый']});
 Object.keys(CARD).forEach(id=>{const el=$(id);if(!el)return;el.style.cursor='pointer';el.addEventListener('click',e=>{e.stopPropagation();openCard(id)})});
-</script><script src="progress.js?v=09301759"></script><script src="glossary.js?v=09301759"></script></body></html>
+</script><script src="progress.js?v=10011511"></script><script src="glossary.js?v=10011511"></script></body></html>
