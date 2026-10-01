@@ -29,7 +29,7 @@ svg{display:block}
 #pad{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:space-between;padding:0 14px;z-index:6}
 #pad button{width:64px;height:64px;border-radius:50%;border:3px solid var(--ink);background:var(--paper);font-size:26px;box-shadow:3px 3px 0 #0005;touch-action:none}
 #pad .grp{display:flex;gap:12px}
-#over{position:absolute;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
+#over{position:absolute;top:0;right:0;bottom:0;left:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
 #over>.paper{max-width:560px;width:100%;padding:18px;max-height:90%;overflow:auto}
 #over h2{margin:0 0 8px}
 .snowf{position:absolute;top:-10px;width:4px;height:4px;background:#fff;border-radius:50%;opacity:.8;z-index:3;pointer-events:none}
@@ -372,7 +372,7 @@ function run(c){cfg=c;document.title=c.title;
  if(c._tod==='night'){c.sky='#1d2a44';c.sky2='#5b5f7a'}
  if(c._tod==='dawn'&&!c.keepSky){c.sky='#7d8fb3';c.sky2='#f0c79a'}
  GAME.style.background=`linear-gradient(${mute(c.sky||'#9fb6c9',.3)},${mute(c.sky2||'#e9d9bd',.25)} 70%)`;
- if(c._tod==='dawn'){const tint=document.createElement('div');tint.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:2;mix-blend-mode:multiply;background:linear-gradient(#ffb07a33,#8a6a9a44)';GAME.appendChild(tint)}
+ if(c._tod==='dawn'){const tint=document.createElement('div');tint.style.cssText='position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:2;mix-blend-mode:multiply;background:linear-gradient(#ffb07a33,#8a6a9a44)';GAME.appendChild(tint)}
  $('temp').textContent=c.weather;
  if(c.worldW){bg.setAttribute('viewBox',`0 0 ${c.worldW} 600`);fg.setAttribute('viewBox',`0 0 ${c.worldW} 600`)}
  if(c.startMistakes)st.mistakes=c.startMistakes;
@@ -423,7 +423,7 @@ function run(c){cfg=c;document.title=c.title;
   document.addEventListener('visibilitychange',()=>{document.hidden?stepEl.pause():wake()})}
  setGoal();loop();
  /* пока грузятся картинки сцены — заставка «Загрузка»; озвучка подкачивается после картинок, чтобы не отнимать у них канал */
- const ld=document.createElement('div');ld.style.cssText='position:absolute;inset:0;z-index:20;background:#1c1714;color:#f3e6cc;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity .4s';
+ const ld=document.createElement('div');ld.style.cssText='position:absolute;top:0;right:0;bottom:0;left:0;z-index:20;background:#1c1714;color:#f3e6cc;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity .4s';
  ld.textContent='Загрузка…';GAME.appendChild(ld);
  const urls=[...new Set([...W.querySelectorAll('image')].map(i=>i.getAttribute('href')).filter(Boolean))];let got=0;
  const ready=Promise.race([wait(12000),Promise.all(urls.map(u=>new Promise(r=>{const im=new Image();im.onload=im.onerror=()=>{ld.textContent='Загрузка… '+Math.round(++got/urls.length*100)+'%';r()};im.src=u})))]);

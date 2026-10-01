@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011546"></script></head>
-<body><script src="engine.js?v=10011546"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · площадка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011645"></script></head>
+<body><script src="engine.js?v=10011645"></script><script>
 const PC='art/cast2/petrovich/',{G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,show,order,mistake,finish,setGoal,$}=Engine;
 const f=st.f;
 const A='art/';
@@ -27,7 +27,7 @@ function glow(id,on){const el=$(id);if(id==='o-fakel'){el.style.transition='opac
 async function npcTo(x){const x0=NPCC.x,n=Math.max(1,Math.round(Math.abs(x-x0)/3));NPCC.walking=true;NPCC.dir=Math.sign(x-x0)||1;for(let k=1;k<=n;k++){NPCC.x=x0+(x-x0)*k/n;NPCC.step=(NPCC.step||0)+0.25;await wait(16)}NPCC.walking=false}
 async function goTo(x){await Promise.all([npcTo(x+70),walkTo(x-110)]);st.dir=1;st.busy=false}
 /* переход через затемнение: вместо долгой прогулки через всю площадку */
-async function jumpTo(x){const o=document.createElement('div');o.style.cssText='position:absolute;inset:0;background:#000;opacity:0;transition:opacity .6s;z-index:7;pointer-events:none';$('game').appendChild(o);
+async function jumpTo(x){const o=document.createElement('div');o.style.cssText='position:absolute;top:0;right:0;bottom:0;left:0;background:#000;opacity:0;transition:opacity .6s;z-index:7;pointer-events:none';$('game').appendChild(o);
  setTimeout(()=>o.style.opacity=1,30);await wait(750);NPCC.x=x+70;NPCC.dir=-1;st.x=x-110;st.dir=1;await wait(300);o.style.opacity=0;await wait(650);o.remove()}
 const TOUR=[
  ['o-pozh',180,'Пожарный щит','Это пожарный щит. Огнетушитель, кошма, песок. Где он — должен знать каждый.',
@@ -119,7 +119,7 @@ function mnemo(alarm){
  const cell=(k,[x1,y1,x2,y2])=>{const [t,bad]=V[k];const [n,...u]=t.split(' ');const cx=(x1+x2)/2,col=bad?'#ff5a4a':'#5ee07a';
   return `<g class="${bad?'bad':''}" font-family="Arial,sans-serif" font-weight="bold" fill="${col}" text-anchor="middle"><text x="${cx}" y="${y1+(y2-y1)*0.47}" font-size="27">${n}</text><text x="${cx}" y="${y1+(y2-y1)*0.9}" font-size="17">${u.join(' ')}</text></g>`};
  return `<div class="mnemo" style="position:relative;margin-top:6px"><img src="${A}scene_1_2/1.2_mnemo_pustaya.png" style="width:100%;display:block">
- <svg viewBox="0 0 1724 831" style="position:absolute;inset:0;width:100%;height:100%"><rect x="66" y="248" width="110" height="46" fill="#1a2c3b"/><text x="74" y="280" font-family="Arial,sans-serif" font-size="22" fill="#fff">Q <tspan font-size="15">устья</tspan></text>
+ <svg viewBox="0 0 1724 831" preserveAspectRatio="none" style="position:absolute;top:0;left:0;width:100%;height:100%"><rect x="66" y="248" width="110" height="46" fill="#1a2c3b"/><text x="74" y="280" font-family="Arial,sans-serif" font-size="22" fill="#fff">Q <tspan font-size="15">устья</tspan></text>
  ${Object.entries(F).map(([k,b])=>cell(k,b)).join('')}</svg></div>`}
 document.head.insertAdjacentHTML('beforeend','<style>#dlg:has(.mnemo){width:min(96%,860px,calc((100vh - 190px)*2.07));bottom:70px;max-height:calc(100vh - 20px)}.mnemo{container-type:inline-size}.mnemo .bad{animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:.35}}@media (max-height:460px){#dlg:has(.mnemo){top:4px;bottom:auto;width:96%;max-height:calc(100vh - 8px);overflow:auto}#dlg:has(.mnemo) .txt{display:inline-block;width:calc(100% - 226px);vertical-align:top;font-size:13px}#dlg:has(.mnemo) .ch{display:inline-flex;width:220px;margin:0 0 0 6px;vertical-align:top}}</style>');
 voMnemo();
@@ -176,4 +176,4 @@ Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},titl
  intro:[['',INTRO]],afterIntro:tour,pointerImg:'art/cast2/arrow.png',pointer:f=>!f.tour?null:!f.diag?{x:885,y:170}:!f.hydrate?{x:2500,y:260}:!f.valves?{x:1930,y:300}:{x:NPCC.x,y:500-195-30},noHint:true,startMistakes:(()=>{try{return +sessionStorage.getItem('gv_ep1_m')||0}catch(e){return 0}})(),
  lessons:['На газовый объект — только в полном комплекте СИЗ, с газоанализатором и рацией','Неисправность ищут по перепаду давления на мнемосхеме','Гидраты — зимний враг газовика, их растворяют метанолом','Переключение потока: сначала открыть новый путь, потом закрыть старый']});
 Object.keys(CARD).forEach(id=>{const el=$(id);if(!el)return;el.style.cursor='pointer';el.addEventListener('click',e=>{e.stopPropagation();openCard(id)})});
-</script><script src="progress.js?v=10011546"></script><script src="glossary.js?v=10011546"></script></body></html>
+</script><script src="progress.js?v=10011645"></script><script src="glossary.js?v=10011645"></script></body></html>

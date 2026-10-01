@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011546"></script>
+<title>Газовая вертикаль</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011645"></script>
 <style>
 :root{--ink:#2a211b;--paper:#f3e6cc;--acc:#d0632a;--dark:#1c1714;--muted:#cbb994}
 *{box-sizing:border-box}
@@ -10,7 +10,7 @@ body{margin:0;background:var(--dark);font-family:Georgia,'Times New Roman',serif
 /* фон и Петрович — одна «картина» постоянных пропорций, прижатая к правому краю: на узком экране она просто обрезается слева,
    а Петрович остаётся на том же месте фона, что и на широком */
 .hero .bgw{position:absolute;right:0;bottom:0;height:100%;aspect-ratio:1600/613;min-width:100%;background:url(art/scene_1_3/1.3_fon_small.jpg) center bottom/cover}
-.hero .bgw:after{content:'';position:absolute;inset:0;background:linear-gradient(#1c171400 30%,#1c1714e6 85%)}
+.hero .bgw:after{content:'';position:absolute;top:0;right:0;bottom:0;left:0;background:linear-gradient(#1c171400 30%,#1c1714e6 85%)}
 .hero .pv{position:absolute;right:6%;bottom:4%;height:58%;z-index:1;filter:drop-shadow(4px 6px 0 #0006)}
 .hero .over{position:absolute;left:0;bottom:0;padding:22px;z-index:2;max-width:640px}
 .hero h1{margin:0;font-size:clamp(32px,6vw,58px);color:var(--paper);text-shadow:3px 3px 0 var(--ink)}
