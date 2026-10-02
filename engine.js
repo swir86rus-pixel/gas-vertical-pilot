@@ -202,12 +202,13 @@ function info(title,html){const I=$('info');if(!title){I.style.display='none';re
 let stepEl=null;/* звук шагов (cfg.stepSound): зацикленная запись, играет, пока герой или спутник идут */
 let dlgAt=null;/* над кем висит комиксный пузырь: 'pl' | 'npc' | null (обычная плашка внизу) */
 let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал начать звук без касания — первое касание по реплике запускает клип, а не закрывает её */
+let voRate=1;/* скорость озвучки по говорящему: cfg.voiceRate={'Петрович':1.25} */
 const voCache={};/* клипы сцены заранее скачиваются в память, чтобы реплика звучала сразу, без ожидания сети */
 function voicePreload(){if(!cfg.voice)return;[...new Set(Object.values(cfg.voice.map).flat())].forEach(id=>
  fetch(cfg.voice.dir+id+'.m4a').then(r=>r.ok?r.blob():null).then(b=>{if(b)voCache[id]=URL.createObjectURL(new Blob([b],{type:'audio/mp4'}))}).catch(()=>{}))}
 function voiceStop(){voRun++;voBlocked=null;if(voEl)voEl.pause()}
 function voice(txt){voiceStop();const v=cfg.voice&&cfg.voice.map[txt];if(!v)return;const run=voRun,list=[].concat(v);let i=0;
- voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;const id=list[i++];voEl.src=voCache[id]||cfg.voice.dir+id+'.m4a';voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
+ voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;const id=list[i++];voEl.src=voCache[id]||cfg.voice.dir+id+'.m4a';voEl.preservesPitch=voEl.mozPreservesPitch=voEl.webkitPreservesPitch=true;voEl.playbackRate=voRate;voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
 function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  const npcName=cfg.npc&&cfg.npc.name;
  st.talk=who==='Вы'?'pl':npcName&&who===npcName?'npc':null;
@@ -216,7 +217,7 @@ function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  if(st.talk==='npc')st.dir=cfg.npc.x>st.x?1:-1;
  if(st.talk==='npc'&&/Молод|Верно|Правильн|Отлично|Хорош|Спасибо/.test(txt))setExpr('npc','happy',2500);
  if(/Стоп|СТОЙ|НИКАКОГО|Нельзя|нельзя!/.test(txt)&&who.startsWith&&!who.startsWith('Вы'))setExpr('pl','worry',2500);
- voice(txt);
+ voRate=cfg.voiceRate&&Object.keys(cfg.voiceRate).find(k=>who.includes(k))?cfg.voiceRate[Object.keys(cfg.voiceRate).find(k=>who.includes(k))]:1;voice(txt);
  dlgAt=choices?null:who.startsWith('Вы')||who.includes('рации')?'pl':st.talk==='npc'?'npc':null;
  D.classList.toggle('comic',!!dlgAt);D.classList.toggle('radio',!!dlgAt&&who.includes('рации')&&!who.startsWith('Вы'));D.style.left=D.style.top=dlgAt?'-999px':'';
  D.style.display='block';D.querySelector('.who').textContent=(dlgAt?'📻 ':'')+who;D.querySelector('.txt').innerHTML=txt;
@@ -426,7 +427,12 @@ function run(c){cfg=c;document.title=c.title;
  const ld=document.createElement('div');ld.style.cssText='position:absolute;top:0;right:0;bottom:0;left:0;z-index:20;background:#1c1714;color:#f3e6cc;display:flex;align-items:center;justify-content:center;font-size:18px;transition:opacity .4s';
  ld.textContent='Загрузка…';GAME.appendChild(ld);
  const urls=[...new Set([...W.querySelectorAll('image')].map(i=>i.getAttribute('href')).filter(Boolean))];let got=0;
- const ready=Promise.race([wait(12000),Promise.all(urls.map(u=>new Promise(r=>{const im=new Image();im.onload=im.onerror=()=>{ld.textContent='Загрузка… '+Math.round(++got/urls.length*100)+'%';r()};im.src=u})))]);
+ /* ждём все картинки сцены (без ограничения по времени), иначе на медленной сети объекты остаются пустыми;
+    если загрузка зависла дольше 25 с — появляется кнопка продолжить без ожидания */
+ const ldT=document.createElement('span');ldT.textContent='Загрузка…';ld.textContent='';ld.style.flexDirection='column';ld.style.gap='14px';ld.appendChild(ldT);
+ let skip;const skipP=new Promise(r=>skip=r);
+ setTimeout(()=>{if(!ld.isConnected)return;const b=document.createElement('button');b.textContent='Продолжить без ожидания';b.style.cssText='font:inherit;font-size:15px;padding:8px 14px;border:2px solid #f3e6cc;border-radius:6px;background:transparent;color:#f3e6cc;cursor:pointer';b.onclick=skip;ld.appendChild(b)},25000);
+ const ready=Promise.race([skipP,Promise.all(urls.map(u=>new Promise(r=>{const im=new Image();im.onload=im.onerror=()=>{ldT.textContent='Загрузка… '+Math.round(++got/urls.length*100)+'%';r()};im.src=u})))]);
  ready.then(()=>{ld.style.opacity=0;setTimeout(()=>ld.remove(),450);voicePreload();return seq(c.intro.concat(c.noHint?[]:[['Подсказка',matchMedia('(pointer:coarse)').matches?'Ходите кнопками ◀ ▶ внизу экрана. Действие — кнопка ✋.':'Ходите стрелками ◀ ▶ (или A/D). Действие — клавиша E, пробел или кнопка ✋.']]))}).then(()=>c.afterIntro&&c.afterIntro());
 }
 window.Engine={info,person,setExpr,mark,climb,run,G,S,S2,INK,st,say,seq,wait,walkTo,turnWheel,work,sparks,show,timing,order,mistake,finish,setGoal,$};

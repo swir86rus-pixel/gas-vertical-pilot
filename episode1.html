@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10011645"></script></head>
-<body><script src="engine.js?v=10011645"></script><script>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"><title>Эпизод 1 · раздевалка</title><script src="vendor/max-web-app.js"></script><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="platform.js?v=10021031"></script></head>
+<body><script src="engine.js?v=10021031"></script><script>
 const PC='art/cast2/petrovich/',{S2,st,say,seq,wait,walkTo,mistake,setGoal,$}=Engine;
 const f=st.f,A='art/';
 /* раздевалка: фон 1942x809 в масштабе 0.9, пол на y=500 */
@@ -55,7 +55,7 @@ async function dress(){
  const o=document.createElement('div');o.style.cssText='position:fixed;top:0;right:0;bottom:0;left:0;background:#000;opacity:0;transition:opacity 1s;z-index:20';document.body.appendChild(o);
  requestAnimationFrame(()=>o.style.opacity=1);await wait(1100);location.href='episode1-2.html'}
 const CV='art/cast2/hero/civ/',C='art/hero_civ/',Dd='art/cast2/hero/dress/',P='art/petrovich/';
-Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
+Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},voiceRate:{'Петрович':1.4},title:'Эпизод 1. Первая смена на УКПГ',profession:'Оператор по добыче газа',
  weather:'🏠 +21 °C · 07:50',sky:'#1c1714',sky2:'#1c1714',keepSky:true,noClouds:true,start:170*SC,worldW:1942*K,
  bgImage:{src:A+'scene_1_0/1.0_fon.jpg',y:OY,w:1942*K,h:809*K},
  player:{sprites:{h:205,mouth:[10,174],walkFrames:['walk2','walk1','walk8','walk7','walk6','walk5','walk4','walk3'],walkStep:1.1,poses:{
@@ -67,4 +67,4 @@ Engine.run({id:'ep1',pilot:true,music:false,voice:{dir:'audio/ep1/',map:VO},titl
  scene,hotspots:[{x:760*SC,r:130,when:f=>!f.talked,label:'Представиться',tip:'Мастер Петрович',act:talkMaster},{x:CAB.x,r:100,label:'Шкаф СИЗ',tip:'Шкаф со спецодеждой (СИЗ)',act:dress}],
  intro:[['',INTRO]],
  lessons:[]});
-</script><script src="progress.js?v=10011645"></script><script src="glossary.js?v=10011645"></script></body></html>
+</script><script src="progress.js?v=10021031"></script><script src="glossary.js?v=10021031"></script></body></html>
