@@ -1,6 +1,8 @@
 /* Движок сюжетных эпизодов «Газовая вертикаль».
    Эпизод подключает этот файл и вызывает Engine.run(cfg). */
 (function(){
+// метка версии движка — и для клипов озвучки, чтобы телефоны не брали старые из кэша
+const VO_Q=((document.currentScript&&document.currentScript.src.split('?')[1])||'').replace(/^/,'?').replace(/^\?$/,'');
 const INK='#2a211b';
 const S=`stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
 const S2=`stroke="${INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
@@ -205,10 +207,10 @@ let voEl=null,voRun=0,voBlocked=null;/* voBlocked: браузер не дал н
 let voRate=1;/* скорость озвучки по говорящему: cfg.voiceRate={'Петрович':1.25} */
 const voCache={};/* клипы сцены заранее скачиваются в память, чтобы реплика звучала сразу, без ожидания сети */
 function voicePreload(){if(!cfg.voice)return;[...new Set(Object.values(cfg.voice.map).flat())].forEach(id=>
- fetch(cfg.voice.dir+id+'.m4a').then(r=>r.ok?r.blob():null).then(b=>{if(b)voCache[id]=URL.createObjectURL(new Blob([b],{type:'audio/mp4'}))}).catch(()=>{}))}
+ fetch(cfg.voice.dir+id+'.m4a'+VO_Q).then(r=>r.ok?r.blob():null).then(b=>{if(b)voCache[id]=URL.createObjectURL(new Blob([b],{type:'audio/mp4'}))}).catch(()=>{}))}
 function voiceStop(){voRun++;voBlocked=null;if(voEl)voEl.pause()}
 function voice(txt){voiceStop();const v=cfg.voice&&cfg.voice.map[txt];if(!v)return;const run=voRun,list=[].concat(v);let i=0;
- voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;const id=list[i++];voEl.src=voCache[id]||cfg.voice.dir+id+'.m4a';voEl.preservesPitch=voEl.mozPreservesPitch=voEl.webkitPreservesPitch=true;voEl.playbackRate=voRate;voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
+ voEl=voEl||new Audio();const next=()=>{if(run!==voRun||i>=list.length)return;const id=list[i++];voEl.src=voCache[id]||cfg.voice.dir+id+'.m4a'+VO_Q;voEl.preservesPitch=voEl.mozPreservesPitch=voEl.webkitPreservesPitch=true;voEl.playbackRate=voRate;voEl.play().catch(e=>{if(run===voRun&&e.name==='NotAllowedError')voBlocked=()=>{voBlocked=null;voEl.play().catch(()=>{})}})};voEl.onended=next;next()}
 function say(who,txt,choices){return new Promise(res=>{st.busy=true;
  const npcName=cfg.npc&&cfg.npc.name;
  st.talk=who==='Вы'?'pl':npcName&&who===npcName?'npc':null;
